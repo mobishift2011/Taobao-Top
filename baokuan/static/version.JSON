@@ -1,0 +1,11 @@
+{
+    "ios": {
+        "CURRENT": "0.2",
+        "MIN": "0.1"
+    },
+    "android": {
+        "CURRENT": "0.2",
+        "MIN": "0.1",
+        "APP_STORE": ""
+    }
+}
