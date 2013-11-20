@@ -84,6 +84,7 @@ class UserResource(BaseResource):
         """
         Just help check if the request is authenticated.
         """
+        request.asdfasdf
         return self.create_response(request, {'response': request.user.is_authenticated()})
 
     def bind(self, request, **kwargs):
@@ -329,7 +330,9 @@ class PaperResource(BaseResource):
             url(r"^(?P<resource_name>%s)/current%s$" % (self._meta.resource_name, trailing_slash()), \
                 self.wrap_view('current'), name="api_current"),
             url(r"^(?P<resource_name>%s)/history%s$" % (self._meta.resource_name, trailing_slash()), \
-                self.wrap_view('history'), name="api_history"),      
+                self.wrap_view('history'), name="api_history"),
+            url(r"^(?P<resource_name>%s)/yesterday%s$" % (self._meta.resource_name, trailing_slash()), \
+                self.wrap_view('yesterday'), name="api_yesterday"),   
         ]
 
     def current(self, request, **kwargs):
@@ -338,9 +341,14 @@ class PaperResource(BaseResource):
         params = dict(request.GET.dict().items() + {'period__gt': today, 'period__lt': tomorrow}.items())
         return redirect(u'/api/v1/paper/?{}'.format(urlencode(params)))
 
+    def yesterday(self, request, **kwargs):
+        today = datetime.utcnow().replace(hour=0,minute=0,second=0, microsecond=0)
+        yesterday = today - timedelta(days=1)
+        params = dict(request.GET.dict().items() + {'period__gt': yesterday, 'period__lt': today}.items())
+        return redirect(u'/api/v1/paper/?{}'.format(urlencode(params)))
+
     def history(self, request, **kwargs):
         today = datetime.utcnow().replace(hour=0,minute=0,second=0, microsecond=0)
-        tomorrow = today + timedelta(days=1)
         params = dict(request.GET.dict().items() + {'period__lt': today}.items())
         return redirect(u'/api/v1/paper/?{}'.format(urlencode(params)))
 
