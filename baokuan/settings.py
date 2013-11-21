@@ -19,7 +19,8 @@ elif env == 'PRODUCTION':
 connect(host=MONGOHOST, db=APP_NAME)
 MONGOENGINE_USER_DOCUMENT = 'mongoengine.django.auth.User'
 AUTHENTICATION_BACKENDS = (
-    'mongoengine.django.auth.MongoEngineBackend',
+    # 'mongoengine.django.auth.MongoEngineBackend',
+    'apis.base.authentications.BaokuanEngineBackend',
 )
 
 

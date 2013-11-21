@@ -41,7 +41,7 @@ class UserResource(BaseResource):
                                             attribute='accounts', full=True, null=True)
     class Meta:
         queryset = User.objects()
-        allowed_methods = ('get', 'patch')
+        allowed_methods = ('get',)
         detail_allowed_methods = ('get', 'post')
         authentication = UserAuthentication()
         authorization = Authorization()
@@ -84,13 +84,12 @@ class UserResource(BaseResource):
         """
         Just help check if the request is authenticated.
         """
-        request.asdfasdf
         return self.create_response(request, {'response': request.user.is_authenticated()})
 
     def bind(self, request, **kwargs):
         self.method_check(request, allowed=('post', 'delete'))
-        # if not request.user.is_authenticated():
-        #     return self.create_response(request, {'error_message': 'no login user to bind'}, response_class=HttpUnauthorized)
+        if not request.user.is_authenticated():
+            return self.create_response(request, {'error_message': 'no login user to bind'}, response_class=HttpUnauthorized)
 
         u = request.user
         aid = str(data.get('aid'))
@@ -196,8 +195,7 @@ class UserResource(BaseResource):
             return self.create_response(request, {'error_message': 'incorrect username or password'}, HttpUnauthorized)
 
     def logout(self, request, **kwargs):
-        # TODO
-        if True :#request.user and request.user.is_authenticated():
+        if request.user and request.user.is_authenticated():
             logout(request)
             return self.create_response(request, {'success': True})
         else:
@@ -245,8 +243,8 @@ class UserResource(BaseResource):
     def change_password(self, request, **kwargs):
         self.method_check(request, allowed=('post',))
         user_id = kwargs.get('user_id')
-        # if request.user.id != user_id:
-        #     return self.create_response(request, {'error_code': 1, 'error_message': 'user errror'}, HttpUnauthorized)
+        if not request.user.is_authenticated or request.user.id != user_id:
+            return self.create_response(request, {'error_code': 1, 'error_message': 'user errror'}, HttpUnauthorized)
 
         data = self.deserialize(request, request.body, format=request.META.get('CONTENT_TYPE', 'application/json'))
         old_password = data.get('old_password')
@@ -393,8 +391,7 @@ class MarkResource(BaseResource):
         paper_id = data['paper_id']
         answers = data['answers']
 
-        # TODO authenticate
-        if request.user and request.user.id and request.user.id != user_id:
+        if not request.user.is_authenticated or request.user.id != user_id:
             return self.create_response(request, \
                 {'error_message': 'session user and submit user inconform'}, response_class=HttpUnauthorized)
 
