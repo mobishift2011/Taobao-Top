@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
-from settings import SECRET_KEY, EMAIL_HOST_USER, APP_NAME
+from settings import SECRET_KEY, EMAIL_HOST_USER, APP_NAME, AUTHENTICATION_BACKENDS
 from models import *
 from validations import *
 from authentications import UserAuthentication
@@ -84,7 +84,7 @@ class UserResource(BaseResource):
         """
         Just help check if the request is authenticated.
         """
-        return self.create_response(request, {'response': request.user.is_authenticated()})
+        return self.create_response(request, {'response': request.user})
 
     def bind(self, request, **kwargs):
         self.method_check(request, allowed=('post', 'delete'))
@@ -154,6 +154,8 @@ class UserResource(BaseResource):
                 account.screen_name = screen_name
                 account.token = token
                 account.save()
+                user.backend = AUTHENTICATION_BACKENDS[0]
+                login(request, user)
                 return self.create_response(request, self.to_json(user))
 
             # new user
@@ -169,7 +171,7 @@ class UserResource(BaseResource):
             account.save()
             new_user = User().create_user(
                 #TODO change username generate as mongo id.
-                username = u'default_user{}'.format(User.objects.count()), 
+                username = str(ObjectId()), 
                 password = SECRET_KEY,
                 screen_name = screen_name,
                 device = device,
@@ -243,7 +245,7 @@ class UserResource(BaseResource):
     def change_password(self, request, **kwargs):
         self.method_check(request, allowed=('post',))
         user_id = kwargs.get('user_id')
-        if not request.user.is_authenticated or request.user.id != user_id:
+        if not request.user.is_authenticated() or request.user.id != user_id:
             return self.create_response(request, {'error_code': 1, 'error_message': 'user errror'}, HttpUnauthorized)
 
         data = self.deserialize(request, request.body, format=request.META.get('CONTENT_TYPE', 'application/json'))
@@ -343,34 +345,82 @@ class PaperResource(BaseResource):
         today = datetime.utcnow().replace(hour=0,minute=0,second=0, microsecond=0)
         yesterday = today - timedelta(days=1)
         params = dict(request.GET.dict().items() + {'period__gt': yesterday, 'period__lt': today}.items())
-        return redirect(u'/api/v1/paper/?{}'.format(urlencode(params)))
+        return redirect(u'/api/v1/paper/history/?{}'.format(urlencode(params)))
 
     def history(self, request, **kwargs):
-        today = datetime.utcnow().replace(hour=0,minute=0,second=0, microsecond=0)
-        params = dict(request.GET.dict().items() + {'period__lt': today}.items())
-        return redirect(u'/api/v1/paper/?{}'.format(urlencode(params)))
+        today = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+        param_dict = request.GET.dict()
+        params = dict(param_dict.items() + {'period__lt': today}.items()) \
+            if 'period__lt' not in param_dict else param_dict
+        papers_url = u'http://{}/api/v1/paper/?{}'.format(request.META['HTTP_HOST'], urlencode(params))
+
+        if not request.user.is_authenticated():
+            res = requests.get(papers_url).json()
+            for data in res['objects']:
+                paper_id = data['id']
+                paper_answers = data.get('answers', {})
+                paper = Paper.objects(id=paper_id).first()
+                if not paper:
+                    continue
+
+                for quiz in data.get('quizes', []):
+                    for prod in quiz.get('products', []):
+                        if quiz['id'] in paper_answers \
+                            and prod['id'] in paper_answers[quiz['id']]:
+                                prod['score'] = paper_answers[quiz['id']][prod['id']]
+
+            return self.create_response(request, res)
+
+        else:
+            res = requests.get(papers_url).json()
+            for data in res['objects']:
+                paper_id = data['id']
+                paper = Paper.objects(id=paper_id).first()
+                if not paper:
+                    continue
+
+                mark = Mark.objects(paper=paper, user=request.user).first()
+                paper_answers = data.get('answers', {})
+
+                if mark:
+                    mark_answers = mark.answers
+                    data['mark'] = {}
+                    data['mark']['score'] = mark.score
+                    data['mark']['rank'] = mark.rank
+                    data['mark']['answers'] = mark_answers
+                    data['mark']['bonus'] = mark.bonus
+
+                for quiz in data.get('quizes', []):
+                    for prod in quiz.get('products', []):
+                        if quiz['id'] in paper_answers \
+                            and prod['id'] in paper_answers[quiz['id']]:
+                                prod['score'] = paper_answers[quiz['id']][prod['id']]
+
+                        if mark:
+                            prod['is_mark'] = (quiz['id'] in mark_answers) \
+                                and (prod['id'] == mark_answers[quiz['id']])
+
+            return self.create_response(request, res)
 
 
 class MarkResource(BaseResource):
     user = fields.ReferenceField(to='apis.base.resources.UserResource', 
                                             attribute='user', full=True, null=True)
-    quiz = fields.ReferenceField(to='apis.base.resources.QuizResource', 
-                                            attribute='quiz', full=False, null=True)
-    answer = fields.ReferenceField(to='apis.base.resources.ProductResource',
-                                            attribute='product', full=False, null=True)
 
     class Meta:
         queryset = Mark.objects()
         allowed_methods = ('get',)
         authentication = UserAuthentication()
         authorization = Authorization()
-        filtering = {'user': ALL, 'quiz': ALL}
+        filtering = {'user': ALL}
         ordering = ('created_at', 'score')
 
     def prepend_urls(self):
         return [
             url(r"^(?P<resource_name>%s)/submit%s$" % (self._meta.resource_name, trailing_slash()), \
-                self.wrap_view('submit'), name="api_submit")
+                self.wrap_view('submit'), name="api_submit"),
+            url(r"^(?P<resource_name>%s)/latest%s$" % (self._meta.resource_name, trailing_slash()), \
+                self.wrap_view('latest'), name="api_latest")
         ]
 
     def submit(self, request, **kwargs):
@@ -391,7 +441,7 @@ class MarkResource(BaseResource):
         paper_id = data['paper_id']
         answers = data['answers']
 
-        if not request.user.is_authenticated or request.user.id != user_id:
+        if not request.user.is_authenticated() or request.user.id != user_id:
             return self.create_response(request, \
                 {'error_message': 'session user and submit user inconform'}, response_class=HttpUnauthorized)
 
@@ -425,3 +475,46 @@ class MarkResource(BaseResource):
                 {'error_code': 4, 'error_message': u'user {} already answered {}'.format(user_id, paper_id)})
 
         return self.create_response(request, True)
+
+    def latest(self, request, **kwargs):
+        res = {}
+        user = request.user
+
+        if not user.is_authenticated():
+            return self.create_response(request, {'error_message': 'not login'}, response_class=HttpUnauthorized)
+
+        mark = Mark.objects(user=user).order_by('-period').first()
+
+        if mark:
+            res['rank'] = mark.rank
+            res['score'] = mark.score
+            res['bonus'] = mark.bonus
+            res['period'] = mark.period
+
+        return self.create_response(request, res)
+
+
+class LotteryResource(BaseResource):
+    users = fields.ReferencedListField(of='apis.base.resources.UserResource', 
+                                            attribute='users', full=True, null=True)
+    paper = fields.ReferenceField(to='apis.base.resources.PaperResource',
+                                            attribute='paper', full=True, null=True)
+
+    class Meta:
+        queryset = Lottery.objects()
+        allowed_methods = ('get',)
+        authentication = UserAuthentication()
+        authorization = Authorization()
+        filtering = {'period': ALL}
+
+    def prepend_urls(self):
+        return [
+            url(r"^(?P<resource_name>%s)/yesterday%s$" % (self._meta.resource_name, trailing_slash()), \
+                self.wrap_view('yesterday'), name="api_yesterday"),   
+        ]
+
+    def yesterday(self, request, **kwargs):
+        today = datetime.utcnow().replace(hour=0,minute=0,second=0, microsecond=0)
+        yesterday = today - timedelta(days=1)
+        params = dict(request.GET.dict().items() + {'period__gt': yesterday, 'period__lt': today}.items())
+        return redirect(u'/api/v1/lottery/?{}'.format(urlencode(params)))

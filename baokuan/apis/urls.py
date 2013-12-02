@@ -9,6 +9,7 @@ v1_api.register(ProductResource())
 v1_api.register(QuizResource())
 v1_api.register(PaperResource())
 v1_api.register(MarkResource())
+v1_api.register(LotteryResource())
 
 urlpatterns = patterns('',
     url(r'^', include(v1_api.urls))

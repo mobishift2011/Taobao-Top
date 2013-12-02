@@ -67,6 +67,7 @@ class Paper(Document):
     quizes = ListField(ReferenceField(Quiz, reverse_delete_rule=PULL))
     categories = ListField()
     answers = DictField() # The answers to the certain quizes aggregated by all participants.
+    bonus = FloatField(default=0.0)
 
     meta = {
         'indexes': ['period']
@@ -80,12 +81,20 @@ class Mark(Document):
     period = DateTimeField(required=True)
     score = FloatField()
     rank = IntField()
+    bonus = FloatField(default=0.0)
     created_at = DateTimeField(default=datetime.utcnow())
 
     meta = {
-        'indexes': ['user', 'paper', ('user', 'paper'), 'created_at', 'score']
+        'indexes': [('user', 'paper'), 'created_at', 'score']
     }
 
 
 class Lottery(Document):
-    pass
+    users = ListField(ReferenceField(User, reverse_delete_rule=PULL))
+    score = IntField() # the highest user score
+    paper = ReferenceField(Paper, required=True, unique=True)
+    period = DateTimeField(required=True)
+
+    meta = {
+        'indexes': ['period']
+    }
