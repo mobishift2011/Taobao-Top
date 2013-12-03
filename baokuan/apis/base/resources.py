@@ -418,8 +418,9 @@ class MarkResource(BaseResource):
         allowed_methods = ('get',)
         authentication = UserAuthentication()
         authorization = Authorization()
+        excludes = ('resource_uri',)
         filtering = {'user': ALL}
-        ordering = ('created_at', 'score')
+        ordering = ('created_at', 'period')
 
     def prepend_urls(self):
         return [
@@ -516,7 +517,7 @@ class LotteryResource(BaseResource):
     def prepend_urls(self):
         return [
             url(r"^(?P<resource_name>%s)/yesterday%s$" % (self._meta.resource_name, trailing_slash()), \
-                self.wrap_view('yesterday'), name="api_yesterday"),   
+                self.wrap_view('yesterday'), name="api_yesterday"),
         ]
 
     def yesterday(self, request, **kwargs):

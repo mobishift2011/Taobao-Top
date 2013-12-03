@@ -106,7 +106,8 @@ def score_and_rank():
                 mark.rank = user_rank[user_id]
                 mark.save()
 
-                print u'User {}.{} score: {}, rank: {}'.format(mark.user.username, user_id, mark.score, mark.rank); print
+                print u'User {}.{} score: {}, rank: {}'.format(mark.user.username, user_id, mark.score, mark.rank)
+            print
 
         # print score_counter; print
         paper.answers = paper_answers
@@ -124,11 +125,18 @@ def lottery(paper):
         upsert = True
     )
 
-    for lottery in Lottery.objects(paper=paper):
-        print u'Lottery list for paper {} - {}'.format(paper.id, paper.period)
-        print u'Max score {} for {}:'.format(lottery.score, lottery.period)
-        for user in lottery.users:
-            print user.username
+    lottery = Lottery.objects(paper=paper).first()
+    total_awards = len(lottery.users)
+
+    print u'Lottery list for paper {} - {}'.format(paper.id, paper.period)
+    print u'total awards user count: {}'.format(total_awards)
+    print u'Max score {} for {}:'.format(lottery.score, lottery.period)
+    for user in lottery.users:
+        Mark.objects(user=user, paper=paper).update_one(
+            set__total_awards = total_awards
+        )
+
+        print user.username
     print
 
 

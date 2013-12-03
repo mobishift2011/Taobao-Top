@@ -68,6 +68,7 @@ class Paper(Document):
     categories = ListField()
     answers = DictField() # The answers to the certain quizes aggregated by all participants.
     bonus = FloatField(default=0.0)
+    deadline = DateTimeField() # The time to get the bonus.
 
     meta = {
         'indexes': ['period']
@@ -82,10 +83,12 @@ class Mark(Document):
     score = FloatField()
     rank = IntField()
     bonus = FloatField(default=0.0)
+    is_get_bonus = BooleanField(default=False)
+    total_awards = IntField(default=0)
     created_at = DateTimeField(default=datetime.utcnow())
 
     meta = {
-        'indexes': [('user', 'paper'), 'created_at', 'score']
+        'indexes': [('user', 'paper'), 'created_at', 'period']
     }
 
 
