@@ -8,8 +8,8 @@ from mongoengine.django.auth import User
 from datetime import datetime
 
 class Account(Document):
-    aid = StringField()
-    platform = StringField(required=True)
+    aid = StringField(required=True)
+    platform = StringField(required=True, unique_with='aid')
     screen_name = StringField(required=True)
     token = StringField()
     

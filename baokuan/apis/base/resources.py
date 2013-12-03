@@ -88,17 +88,24 @@ class UserResource(BaseResource):
 
     def bind(self, request, **kwargs):
         self.method_check(request, allowed=('post', 'delete'))
-        if not request.user.is_authenticated():
+        u = request.user
+        if not u.is_authenticated():
             return self.create_response(request, {'error_message': 'no login user to bind'}, response_class=HttpUnauthorized)
 
-        u = request.user
-        aid = str(data.get('aid'))
+        data = self.deserialize(request, request.body, format=request.META.get('CONTENT_TYPE', 'application/json'))
+        aid = data.get('aid')
         platform = data.get('platform')
         screen_name = data.get('screen_name')
         token = data.get('token')
-        # TODO remove
-        user_id = data.get('user_id')
-        u = user.objects(id=user_id).first()
+        validation_error = {}
+
+        for var in ['aid', 'platform', 'screen_name']:
+            if not locals().get(var):
+                validation_error[var] = 'the param is required.'
+                continue
+
+        if validation_error:
+            return self.create_response(request, validation_error, HttpBadRequest)
 
         Account.objects(aid=aid, platform=platform).update_one( \
             set__screen_name=screen_name, set__token=token, upsert=True)
@@ -110,19 +117,18 @@ class UserResource(BaseResource):
                 user.accounts.remove(account)
                 user.save()
 
-        if request.method == 'post':
+        if request.method == 'POST':
             if account in u.accounts:
                 return self.create_response(request, {'error_code':1, 'error_message': 'already binding'})
             u.accounts.append(account)
             u.save()
 
-        elif request.method == 'delete':
+        elif request.method == 'DELETE':
             if account not in u.accounts:
                 return self.create_response(request, {'error_code':2, 'error_message': 'already unbinding'})
             u.accounts.remove(account)
             u.save()
             account.delete()
-            account.save()
 
         return self.create_response(request, self.to_json(u))
 
