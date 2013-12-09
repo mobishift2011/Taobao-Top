@@ -83,7 +83,7 @@ class Mark(Document):
     score = FloatField()
     rank = IntField()
     bonus = FloatField(default=0.0)
-    is_get_bonus = BooleanField(default=False)
+    is_get_bonus = IntField(default=0) # 0: unaccept, 1: beging processed, 2: accepted.
     total_awards = IntField(default=0)
     created_at = DateTimeField(default=datetime.utcnow())
 

@@ -87,7 +87,7 @@ class UserResource(BaseResource):
         return self.create_response(request, {'response': request.user})
 
     def bind(self, request, **kwargs):
-        self.method_check(request, allowed=('post', 'delete'))
+        self.method_check(request, allowed=('post',))
         u = request.user
         if not u.is_authenticated():
             return self.create_response(request, {'error_message': 'no login user to bind'}, response_class=HttpUnauthorized)
@@ -97,9 +97,10 @@ class UserResource(BaseResource):
         platform = data.get('platform')
         screen_name = data.get('screen_name')
         token = data.get('token')
+        bind_type = data.get('bind_type')
         validation_error = {}
 
-        for var in ['aid', 'platform', 'screen_name']:
+        for var in ['aid', 'platform', 'screen_name', 'bind_type']:
             if not locals().get(var):
                 validation_error[var] = 'the param is required.'
                 continue
@@ -117,15 +118,17 @@ class UserResource(BaseResource):
                 user.accounts.remove(account)
                 user.save()
 
-        if request.method == 'POST':
+        if bind_type == 'add':
             if account in u.accounts:
                 return self.create_response(request, {'error_code':1, 'error_message': 'already binding'})
             u.accounts.append(account)
             u.save()
 
-        elif request.method == 'DELETE':
+        elif bind_type == 'delete':
             if account not in u.accounts:
-                return self.create_response(request, {'error_code':2, 'error_message': 'already unbinding'})
+                return self.create_response(request, {'error_code': 2, 'error_message': 'already unbinding'})
+            if not u.email and len(u.accounts) == 1:
+                return self.create_response(request, {'error_code': 3, 'error_message': 'open login user can not unbind the account'})
             u.accounts.remove(account)
             u.save()
             account.delete()
@@ -176,7 +179,6 @@ class UserResource(BaseResource):
             )
             account.save()
             new_user = User().create_user(
-                #TODO change username generate as mongo id.
                 username = str(ObjectId()), 
                 password = SECRET_KEY,
                 screen_name = screen_name,
@@ -269,7 +271,7 @@ class UserResource(BaseResource):
         u = User.objects(id=user_id).first()
         user = authenticate(username=u.username, password=old_password)
         if not user or not user.is_authenticated:
-            return self.create_response(request, {'error_code': 2, 'error_message': 'old password error'}, HttpUnauthorized)
+            return self.create_response(request, {'error_code': 1, 'error_message': 'old password error'})
 
         u.set_password(new_password)
         u.save()
@@ -412,6 +414,8 @@ class PaperResource(BaseResource):
 class MarkResource(BaseResource):
     user = fields.ReferenceField(to='apis.base.resources.UserResource', 
                                             attribute='user', full=True, null=True)
+    paper = fields.ReferenceField(to='apis.base.resources.PaperResource', 
+                                            attribute='paper', full=True, null=True)
 
     class Meta:
         queryset = Mark.objects()
@@ -429,6 +433,13 @@ class MarkResource(BaseResource):
             url(r"^(?P<resource_name>%s)/latest%s$" % (self._meta.resource_name, trailing_slash()), \
                 self.wrap_view('latest'), name="api_latest")
         ]
+
+    def dehydrate(self, bundle):
+        paper_id = bundle.obj.paper.id
+        deadline = bundle.obj.paper.deadline
+        bundle.data['paper'] = paper_id
+        bundle.data['deadline'] = deadline
+        return bundle
 
     def submit(self, request, **kwargs):
         self.method_check(request, allowed=('post',))

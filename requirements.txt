@@ -4,3 +4,5 @@ pymongo>=2.6.3
 mongoengine>=0.8.4
 blinker
 requests
+APNSWrapper
+jpush

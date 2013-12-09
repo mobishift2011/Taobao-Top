@@ -11,6 +11,14 @@ v1_api.register(PaperResource())
 v1_api.register(MarkResource())
 v1_api.register(LotteryResource())
 
+try:
+    from notification.resources import *
+except ImportError:
+    import traceback
+    traceback.print_exc()
+else:
+    v1_api.register(NotificationResource())
+
 urlpatterns = patterns('',
     url(r'^', include(v1_api.urls))
 )
