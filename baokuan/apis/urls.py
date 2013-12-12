@@ -10,14 +10,10 @@ v1_api.register(QuizResource())
 v1_api.register(PaperResource())
 v1_api.register(MarkResource())
 v1_api.register(LotteryResource())
+v1_api.register(FavoriteCategoryResource())
 
-try:
-    from notification.resources import *
-except ImportError:
-    import traceback
-    traceback.print_exc()
-else:
-    v1_api.register(NotificationResource())
+from notification.resources import *
+v1_api.register(NotificationResource())
 
 urlpatterns = patterns('',
     url(r'^', include(v1_api.urls))

@@ -1,4 +1,6 @@
 django-tastypie-mongoengine
+celery
+django-celery
 django-celery-email
 pymongo>=2.6.3
 mongoengine>=0.8.4

@@ -117,6 +117,7 @@ TEMPLATE_DIRS = (
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
     os.path.join(ROOT_PATH, 'templates'),
+    os.path.join(ROOT_PATH, 'templates', 'admins'),
 )
 
 INSTALLED_APPS = (
@@ -129,6 +130,7 @@ INSTALLED_APPS = (
     'tastypie',
     'tastypie_mongoengine',
     'mongoengine.django.mongo_auth',
+    'djcelery',
     'djcelery_email',
     'apis',
 )
@@ -136,9 +138,14 @@ INSTALLED_APPS = (
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
 SESSION_ENGINE = 'mongoengine.django.sessions'
 
-# EMAIL_BACKEND = 'djcelery_email.backends.CeleryEmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'no-reply@favbuy.com'
 EMAIL_HOST_PASSWORD = 'tempfavbuy88'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
+EMAIL_BACKEND = 'djcelery_email.backends.CeleryEmailBackend'
+
+CELERY_EMAIL_TASK_CONFIG = {
+    'queue' : 'email',
+    # 'rate_limit' : '50/m',
+}

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block breadcrumb %}
+<li>
+    <a href="/admin/">Home</a> <span class="divider">/</span>
+</li>
+<li>
+    <a href="/admin/dashboard/">Dashboard</a>
+</li>
+{% endblock %}
+
+{% block content%}
+<div class="sortable row-fluid">
+    <a data-rel="tooltip" title="{{ new_user_counts }} 今日新用户." class="well span3 top-block" href="#">
+        <span class="icon32 icon-red icon-user"></span>
+        <div>用户总数</div>
+        <div>{% if total_user_counts %}{{ total_user_counts }}{% else %}0{% endif %}</div>
+        <span class="notification">{% if new_user_counts %}{{ new_user_counts }}{% else %}0{% endif %}</span>
+    </a>
+
+    <a data-rel="tooltip" title="{{ new_lottery_user_counts }} 昨日新获奖用户." class="well span3 top-block" href="#">
+        <span class="icon32 icon-color icon-star-on"></span>
+        <div>获奖人数</div>
+        <div>{{ lottery_user_counts }}</div>
+        <span class="notification green">{{ new_lottery_user_counts }}</span>
+    </a>
+
+    <a data-rel="tooltip" title="$0 new sales." class="well span3 top-block" href="#">
+        <span class="icon32 icon-color icon-cart"></span>
+        <div>Sales</div>
+        <div>$0</div>
+        <span class="notification yellow">$0</span>
+    </a>
+    
+    <a data-rel="tooltip" title="{{ new_notif_counts }} new messages." class="well span3 top-block" href="#">
+        <span class="icon32 icon-color icon-envelope-closed"></span>
+        <div>推送</div>
+        <div>{% if notif_counts %}{{ notif_counts }}{% else %}0{% endif %}</div>
+        <span class="notification red">{% if new_notif_counts %}{{ new_notif_counts }}{% else %}0{% endif %}</span>
+    </a>
+</div>
+{% endblock %}

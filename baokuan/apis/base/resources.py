@@ -86,6 +86,9 @@ class UserResource(BaseResource):
         """
         return self.create_response(request, {'response': request.user})
 
+    def validate_password(self, password=''):
+        return (len(password)>=6 and len(password)<=20)
+
     def bind(self, request, **kwargs):
         self.method_check(request, allowed=('post',))
         u = request.user
@@ -222,6 +225,15 @@ class UserResource(BaseResource):
         device_platform = data.get('device_platform')
         device_id = data.get('device_id')
         device = u'{}_{}'.format(device_platform, device_id)
+        validation_error = {}
+
+        for var in ['password', 'device_id', 'device_platform', 'email', 'screen_name']:
+            if not locals().get(var):
+                validation_error[var] = u'the post param is required'
+                continue
+
+        if validation_error:
+            return self.create_response(request, validation_error, HttpBadRequest)
 
         user = User.objects(Q(username=username)|Q(device=device)|Q(email=email)|Q(screen_name=screen_name)).first()
         if user:
@@ -234,6 +246,9 @@ class UserResource(BaseResource):
             if user.screen_name == screen_name:
                 return self.create_response(request, {'error_code': 4, 'error_message': 'screen_name exists'})
 
+        if not self.validate_password(password):
+            return self.create_response(request, {'error_code': 5, 'error_message': 'password invalid'})
+
         try:
             new_user = User().create_user(
                 username=username, 
@@ -244,7 +259,7 @@ class UserResource(BaseResource):
                 device = device,
             )
         except ValidationError:
-            return self.create_response(request, {'error_message': 'email format not correct'}, HttpBadRequest)
+            return self.create_response(request, {'error_code': 6, 'error_message': 'email format not correct'})
 
         user = authenticate(username=username, password=password)
         login(request, user)
@@ -254,7 +269,7 @@ class UserResource(BaseResource):
         self.method_check(request, allowed=('post',))
         user_id = kwargs.get('user_id')
         if not request.user.is_authenticated() or request.user.id != user_id:
-            return self.create_response(request, {'error_code': 1, 'error_message': 'user errror'}, HttpUnauthorized)
+            return self.create_response(request, {'error_code': 1, 'error_message': 'user error'}, HttpUnauthorized)
 
         data = self.deserialize(request, request.body, format=request.META.get('CONTENT_TYPE', 'application/json'))
         old_password = data.get('old_password')
@@ -267,6 +282,9 @@ class UserResource(BaseResource):
         if new_password != confirm_password:
             return self.create_response(request, \
                 {'error_code': 2, 'error_message': 'new password must be equal with confirm password'}, HttpBadRequest)
+        if not self.validate_password(new_password):
+            return self.create_response(request, \
+                {'error_code': 3, 'error_message': 'new password invalid, should be 6-20 digits'}, HttpBadRequest)
 
         u = User.objects(id=user_id).first()
         user = authenticate(username=u.username, password=old_password)
@@ -285,9 +303,15 @@ class UserResource(BaseResource):
             return self.create_response(request, {'error_message': 'email error'}, HttpBadRequest)
         
         token = signing.dumps(user.id, key=SECRET_KEY)
-        # TODO put token in redis
+        PwdRstToken.objects(user=user).update_one(
+            set__token = token,
+            set__generated_at = datetime.utcnow(),
+            set__expires = 10,
+            upsert = True
+        )
+
         link = reverse('api_reset_password', kwargs={'resource_name': self._meta.resource_name, 'api_name': 'v1', 'user_id': user.id})
-        url = u'{}?token={}'.format(request.build_absolute_uri(link), token)
+        url = u'{}?token={}&format=json'.format(request.build_absolute_uri(link), token)
         c = Context({'user': user,  'APP_NAME': APP_NAME, 'url': url})
         html_content = loader.get_template('fgtpwd.html').render(c)
         email = EmailMultiAlternatives(u'验证登录邮箱【{}安全中心 】'.format(APP_NAME), '', EMAIL_HOST_USER, [user.email])
@@ -296,9 +320,42 @@ class UserResource(BaseResource):
         return self.create_response(request, {'success': True})
 
     def reset_password(self, request, **kwargs):
-        #TODO
-        return HttpResponse('ok')
+        if request.method == 'GET':
+            user_id = kwargs.get('user_id')
+            token = request.GET.get('token')
+            user = User.objects.get(id=user_id)
+            prt = PwdRstToken.objects(user=user, token=token).order_by('-generated_at').first()
 
+            if prt is None:
+                return HttpResponse(u'此链接不存在，用户不合法')
+            elif (prt.generated_at + timedelta(minutes=prt.expires)) < datetime.utcnow():
+                return HttpResponse(u'链接已过期')
+
+            user.backend = AUTHENTICATION_BACKENDS[0]
+            login(request, user)
+            return HttpResponse(u'user_id: {}, token: {}'.format(user_id, token))
+
+        elif request.method == 'POST':
+            user = request.user
+            password = request.POST.get('password')
+            confirm_password = request.POST.get('confirm_password')
+            invalid_message = ''
+
+            if not user.is_authenticated():
+                invalid_message = u'用户不合法'
+
+            elif password is None or confirm_password is None:
+                invalid_message = u'密码不得为空'
+
+            elif password != confirm_password:
+                invalid_message = u'新密码与确认密码不一致'
+
+            if not self.validate_password(password):
+                invalid_message = u'密码应该在6-20 位'
+
+            user.set_password(password)
+            user.save()
+            return
 
 class ProductResource(BaseResource):
     class Meta:
@@ -419,7 +476,7 @@ class MarkResource(BaseResource):
 
     class Meta:
         queryset = Mark.objects()
-        allowed_methods = ('get',)
+        allowed_methods = ('get', 'post')
         authentication = UserAuthentication()
         authorization = Authorization()
         excludes = ('resource_uri',)
@@ -431,7 +488,9 @@ class MarkResource(BaseResource):
             url(r"^(?P<resource_name>%s)/submit%s$" % (self._meta.resource_name, trailing_slash()), \
                 self.wrap_view('submit'), name="api_submit"),
             url(r"^(?P<resource_name>%s)/latest%s$" % (self._meta.resource_name, trailing_slash()), \
-                self.wrap_view('latest'), name="api_latest")
+                self.wrap_view('latest'), name="api_latest"),
+            url(r"^(?P<resource_name>%s)/(?P<mark_id>\w+)/apply%s$" % (self._meta.resource_name, trailing_slash()), \
+                self.wrap_view('apply'), name="api_apply")
         ]
 
     def dehydrate(self, bundle):
@@ -440,6 +499,33 @@ class MarkResource(BaseResource):
         bundle.data['paper'] = paper_id
         bundle.data['deadline'] = deadline
         return bundle
+
+    def apply(self, request, **kwargs):
+        self.method_check(request, allowed=('post',))
+        data = self.deserialize(request, request.body, format=request.META.get('CONTENT_TYPE', 'application/json'))
+        phone = data.get('phone')
+        user = request.user
+        validation_error = {}
+        mark_id = kwargs.get('mark_id')
+        mark = Mark.objects(id=mark_id).first()
+
+        if mark is None:
+            return self.create_response(request, {'error_message': 'error mark id'}, HttpNotFound)
+
+        if not user.is_authenticated() or user != mark.user:
+            return self.create_response(request, {'error_message': 'error user'}, HttpUnauthorized)
+
+        for var in ['phone']:
+            if not locals().get(var):
+                validation_error[var] = u'the post param is required'
+                continue
+
+        if validation_error:
+            return self.create_response(request, validation_error, HttpBadRequest)
+
+        mark.phone = phone
+        mark.save()
+        return self.create_response(request, {'success': True})
 
     def submit(self, request, **kwargs):
         self.method_check(request, allowed=('post',))
@@ -536,3 +622,29 @@ class LotteryResource(BaseResource):
         yesterday = today - timedelta(days=1)
         params = dict(request.GET.dict().items() + {'period__gt': yesterday, 'period__lt': today}.items())
         return redirect(u'/api/v1/lottery/?{}'.format(urlencode(params)))
+
+
+class FavoriteCategoryResource(BaseResource):
+    user = fields.ReferenceField(to='apis.base.resources.UserResource', 
+                                            attribute='user', full=False, null=True)
+
+
+    class Meta:
+        queryset = FavoriteCategory.objects()
+        allowed_methods = ('get', 'post')
+        detail_allowed_methods = ('get',)
+        authentication = UserAuthentication()
+        fields = ['user']
+
+    def post_list(self, request, **kwargs):
+        user = request.user
+        content_type = request.META.get('CONTENT_TYPE', 'application/json')
+        data = self.deserialize(request, request.body, format=content_type)
+        categories = data.get('categories',)
+        success = False
+
+        if categories:
+            FavoriteCategory.objects(user=user).update_one(add_to_set__categories=categories, upsert=True)
+            success = True
+
+        return self.create_response(request, {'success': success})

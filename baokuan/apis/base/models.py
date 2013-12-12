@@ -38,6 +38,17 @@ class User(User):
         return new_user
 
 
+class PwdRstToken(Document):
+    user = ReferenceField(User, required=True)
+    token = StringField(required=True)
+    generated_at = DateTimeField(required=True)
+    expires = IntField(default=10) # Cell is minute.
+
+    meta = {
+        'indexes': ['user']
+    }
+
+
 class Product(Document):
     title = StringField()
     description = StringField()
@@ -85,6 +96,7 @@ class Mark(Document):
     bonus = FloatField(default=0.0)
     is_get_bonus = IntField(default=0) # 0: unaccept, 1: beging processed, 2: accepted.
     total_awards = IntField(default=0)
+    phone = StringField()
     created_at = DateTimeField(default=datetime.utcnow())
 
     meta = {
@@ -101,3 +113,16 @@ class Lottery(Document):
     meta = {
         'indexes': ['period']
     }
+
+
+class FavoriteCategory(Document):
+    user = ReferenceField(User, required=True, unique=True)
+    categories = ListField()
+
+    meta = {
+        'indexes': ['user']
+    }
+
+# "error_code" = 4;
+#     "error_message" = "user 527c453d7a56cb0cebc4308e already answered 528b05537a56cb27f6b64792";
+# }

@@ -62,4 +62,13 @@ class Notification(Document):
         Report Received API 2400
         收费版本根据终端用户规模的不同，具有不同级别的频率。如有需要，请访问 JPush价格说明了解更多
         """
-        
+
+
+class NotificationHistory(Document):
+    user = ReferenceField(User, required=True, reverse_delete_rule=CASCADE)
+    notif_type = StringField(required=True, unique_with='user')
+    lasted_at = DateTimeField(datetime.utcnow())
+
+    meta = {
+        'indexes': [('user', 'notif_type')]
+    }
