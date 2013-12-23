@@ -28,23 +28,26 @@ from apis.base.models import Paper, Mark, Lottery
 * Get every user's score and rank.
 """
 
-def score_and_rank():
-    now = datetime.utcnow()
-    today = now.replace(hour=0,minute=0,second=0, microsecond=0)
+def score_and_rank(period=None):
+    if period:
+        today = datetime.strptime(period, '%Y-%m-%d')
+    else:
+        now = datetime.utcnow()
+        today = now.replace(hour=0,minute=0,second=0, microsecond=0)
     yesterday = today - timedelta(days=1)
     score_counter = {}
 
-    for paper in Paper.objects(period__gt=yesterday, period__lt=today):
+    for paper in Paper.objects(period__gte=yesterday, period__lt=today):
         print u'Paper {}.{}'.format(paper.id, paper.period); print
 
         paper_id = str(paper.id)
-        paper_answers = getattr(paper, 'answers', {})
+        paper_answers = {}
         score_counter.setdefault(paper_id, {})
 
         print 'Collecting votes from user ............';
         for mark in Mark.objects(paper=paper):
             """Aggreagte and get totoal votes of a certain quiz."""
-            print; print u'Voting User {}.{}'.format(mark.user.id, mark.user.username)
+            print; print u'Voting User {}.{}'.format(mark.user.username, mark.user.id)
 
             for k, v in mark.answers.iteritems():
                 quiz_id = str(k)
@@ -60,6 +63,9 @@ def score_and_rank():
             paper_answers.setdefault(quiz_id, {})
             quiz_size = len(quiz.products)
 
+            if quiz_id not in score_counter[paper_id]:
+                continue
+
             """Sort the products of a certain quiz by their voting results."""
             quiz.products = sorted(quiz.products, \
                 key=lambda product: score_counter[paper_id][quiz_id][str(product.id)], reverse=True)
@@ -69,9 +75,9 @@ def score_and_rank():
                 product_id = str(product.id)
                 paper_answers[quiz_id][product_id] = quiz_size - i
 
-            print u'Products for quiz {}.{} sorted and scored: \n{}'.format(quiz_id, quiz.title, \
-                [u'{}.{} {}'.format(str(prod.id), prod.title, paper_answers[str(quiz.id)][str(prod.id)]) for prod in quiz.products])
-
+            print u'Products for quiz {}.{} sorted and scored: \n{}'.format(quiz.title, quiz_id, \
+                [u'{}: {}'.format(str(prod.id), paper_answers[str(quiz.id)][str(prod.id)]) for prod in quiz.products])
+            
             quiz.save()
 
         print; print 'score and rank user ............'; print
@@ -109,7 +115,6 @@ def score_and_rank():
                 print u'User {}.{} score: {}, rank: {}'.format(mark.user.username, user_id, mark.score, mark.rank)
             print
 
-        # print score_counter; print
         paper.answers = paper_answers
         paper.save()
 
@@ -125,23 +130,30 @@ def lottery(paper):
         upsert = True
     )
 
+    bonus = 0
     lottery = Lottery.objects(paper=paper).first()
     total_awards = len(lottery.users)
 
-    print u'Lottery list for paper {} - {}'.format(paper.id, paper.period)
+    if total_awards:
+        bonus = 1.0 * paper.bonus / total_awards
+
+    print u'Lottery list for paper {} - {}'.format(paper.period, paper.id)
+    print u'Total bonus: {}'.format(paper.bonus)
     print u'total awards user count: {}'.format(total_awards)
     print u'Max score {} for {}:'.format(lottery.score, lottery.period)
     for user in lottery.users:
         Mark.objects(user=user, paper=paper).update_one(
-            set__total_awards = total_awards
+            set__total_awards = total_awards,
+            set__bonus = bonus
         )
 
-        print user.username
+        print user.username, ' bonus:', bonus
     print
 
 
 if __name__ == '__main__':
-    import time
+    import time, sys
     start_at = time.time()
-    score_and_rank()
+    period = sys.argv[1] if len(sys.argv) > 1 else None
+    score_and_rank(period)
     print u'Totally cost: {} s'.format(time.time()-start_at)

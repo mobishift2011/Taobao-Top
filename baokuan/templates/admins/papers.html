@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block breadcrumb %}
+<li>
+    <a href="/admin/">Home</a> <span class="divider">/</span>
+</li>
+<li>
+    <a href="/admin/papers/">题目</a>
+</li>
+{% endblock %}
+
+{% block content %}
+    <a href="/admin/paper/" target="_blank">添加题集<i class="icon-plus"></i></a>
+    {% for paper in papers %}
+    <div class="row-fluid sortable" id="{{ paper.id }}">
+        <div class="box span12">
+            <div class="box-header well" data-original-title>
+                <h2><i class="icon-list-alt"></i> {{ paper.period|date:"Y-m-d"}}</h2>
+                <div class="box-icon">
+                    <a href="#" class="btn btn-minimize btn-round"><i class="icon-chevron-up"></i></a>
+                    <a href="#" class="btn btn-close btn-round"><i class="icon-remove"></i></a>
+                </div>
+            </div>
+            <div class="box-content">
+                <a class="btn btn-info" href="/admin/paper/{{ paper.id }}/">
+                    <i class="icon-edit icon-white"></i>
+                    Edit                                            
+                </a>
+                <a class="btn btn-danger paper_delete" href="#">
+                    <i class="icon-trash icon-white"></i> 
+                    Delete
+                </a>
+                <div class="box-content">
+                    <div class="page-header">
+                        <h2> 奖金<small style="margin-left: 5px;">RMB {{ paper.bonus }}</small></h2>
+                        <h2> 领奖截止<small style="margin-left: 5px;">{{ paper.deadline|date:'Y-m-d' }}</small></h2>
+                        <h2> 上线<small style="margin-left: 5px;">{% if paper.is_online %}是{% else %}否{% endif %}</small></h2>
+                        <a href="/admin/paper/{{ paper.id }}/quiz/" target="_blank">添加题目<i class="icon-plus"></i></a>
+                    </div>
+                    <ul class="dashboard-list" paper="{{ paper.id }}">
+                        {% for quiz in paper.quizes %}
+                        <li id="{{ quiz.id }}" title="{{ quiz.title }}">
+                            <a href="#">
+                                <img class="dashboard-avatar" alt="{{ quiz.title }}" src="{{ quiz.images.0 }}">
+                            </a>
+                            <strong>题目名:</strong> <a href="#">{{ quiz.title }}</a><br>
+                            <strong>分类:</strong> {% for category in quiz.categories %}{{ category }}{% endfor %}<br>
+                            <strong>描述:</strong> {{ quiz.description }}
+                            <a class="btn btn-info" href="/admin/paper/{{ paper.id }}/quiz/{{ quiz.id }}/">
+                                <i class="icon-edit icon-white"></i>  
+                                Edit                                            
+                            </a>
+                            <a class="btn btn-danger quiz_delete" href="#">
+                                <i class="icon-trash icon-white"></i> 
+                                Delete
+                            </a>
+                            <div class="row-fluid" style="margin:20px 0;" quiz="{{ quiz.id }}">
+                                <p><strong>选项: <a href="/admin/quiz/{{ quiz.id }}/product/" target="_blank"><i class="icon-plus"></i></a></strong><p>
+                                {% for product in quiz.products %}
+                                <div class="span4" id="{{ product.id }}" title="{{ product.title }}">
+                                    <p><img class="dashboard-avatar" alt="{{ product.tid }}" src="{{ product.images.0 }}"></p>
+                                    <a href="{{ product.origin_url }}">{{ product.title }}</a>
+                                    <p>RMB: {{ product.price }}</p>
+                                    <a class="btn btn-info" href="/admin/quiz/{{ quiz.id }}/product/{{ product.id }}/">
+                                        <i class="icon-edit icon-white"></i>  
+                                        Edit                                            
+                                    </a>
+                                    <a class="btn btn-danger product_delete" href="#">
+                                        <i class="icon-trash icon-white"></i> 
+                                        Delete
+                                    </a>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div><!--/span-->
+    </div><!--/row-->
+    {% endfor %}
+{% endblock %}
+
+{% block js %}
+    $('a.product_delete').click(function(){
+        var delete_btn = $(this);
+        var parent_node = delete_btn.parent();
+        var product_id = parent_node.attr('id');
+        var quiz_id = parent_node.parent().attr('quiz');
+        var title = parent_node.attr('title');
+
+        if(confirm('你确认要删除'+quiz_id+'答案产品 '+title+' 吗?')){
+            $.ajax({
+                url: '/admin/quiz/'+quiz_id+'/product/'+product_id+'/',
+                type: 'DELETE',
+                data: {
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function(data) {
+                    console.log(data);
+                    parent_node.remove()
+                }
+            });
+        }
+    });
+
+    $('a.quiz_delete').click(function(){
+        var delete_btn = $(this);
+        var parent_node = delete_btn.parent();
+        var quiz_id = parent_node.attr('id');
+        var paper_id = parent_node.parent().attr('paper');
+        var title = parent_node.attr('title');
+
+        if(confirm('你确认要删除'+paper_id+' 题目 '+title+' 吗?')){
+            $.ajax({
+                url: '/admin/paper/'+paper_id+'/quiz/'+quiz_id+'/',
+                type: 'DELETE',
+                data: {
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function(data) {
+                    console.log(data);
+                    parent_node.remove()
+                }
+            });
+        }
+    });
+
+    $('a.paper_delete').click(function(){
+        var delete_btn = $(this);
+        var parent_node = delete_btn.parent().parent().parent();
+        var paper_id = parent_node.attr('id');
+
+        if(confirm('你确认要删除题集 '+paper_id+' 吗?')){
+            $.ajax({
+                url: '/admin/paper/'+paper_id+'/',
+                type: 'DELETE',
+                data: {
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function(data) {
+                    console.log(data);
+                    parent_node.remove()
+                }
+            });
+        }
+    });
+{% endblock %}

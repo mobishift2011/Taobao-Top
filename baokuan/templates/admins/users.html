@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block breadcrumb %}
+<li>
+    <a href="/admin/">Home</a> <span class="divider">/</span>
+</li>
+<li>
+    <a href="/admin/users/">User</a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="row-fluid sortable">        
+    <div class="box span12">
+        <div class="box-header well" data-original-title>
+            <h2><i class="icon-user"></i> Users</h2>
+            <div class="box-icon">
+                <a href="#" class="btn btn-setting btn-round"><i class="icon-cog"></i></a>
+                <a href="#" class="btn btn-minimize btn-round"><i class="icon-chevron-up"></i></a>
+                <a href="#" class="btn btn-close btn-round"><i class="icon-remove"></i></a>
+            </div>
+        </div>
+        <div class="box-content">
+            <table class="table table-striped table-bordered bootstrap-datatable datatable">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Screen name</th>
+                        <th>Date registered</th>
+                        <th>Device</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.screen_name }}</td>
+                        <td class="center">{{ user.date_joined|date:"Y-m-d G:i:s" }}</td>
+                        <td class="center">{{ user.device }}</td>
+                        <td class="center">
+                            {% if user.is_active %}
+                            <span class="label label-success">Active</span>
+                            {% else %}
+                            <span class="label">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td class="center">
+                            <a class="btn btn-success" href="#">
+                                <i class="icon-zoom-in icon-white"></i>  
+                                View                                            
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+          </table>            
+        </div>
+    </div><!--/span-->
+</div><!--/row-->
+{% endblock %}

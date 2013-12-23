@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>商品详情</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=320, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=false">
+  <style type="text/css">
+    /* reset */
+    html{color:#000;background:#FFF}
+    body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,
+    input,textarea,p,blockquote,th,td{margin:0;padding:0}
+    table{border-collapse:collapse;border-spacing:0}
+    fieldset,img{border:0}
+    address,caption,cite,code,dfn,em,strong,th,var{font-style:normal;font-weight:normal}
+    ol,ul{list-style:none}
+    caption,th{text-align:left}
+    h1,h2,h3,h4,h5,h6{font-size:100%;font-weight:normal}
+    q:before,q:after{content:''}
+    abbr,acronym{border:0;font-variant:normal}
+    sup{vertical-align:text-top}
+    sub{vertical-align:text-bottom}
+    input,textarea,select{font-family:inherit;font-size:inherit;font-weight:inherit}
+    input,textarea,select{*font-size:100%}
+    legend{color:#000}
+  </style>
+  <style type="text/css">
+    body {
+      font: 1.1em/1.5 "STXiHei", "Microsoft YaHei", arial, verdana, helvetica;
+      color: #444;
+    }
+    .product-img-cntr img{
+      vertical-align: top;
+      width: 100%;
+    }
+    .product-detail-ctnr {
+      width: 96%;
+      padding: 2%;
+      background: rgba(255,255,255,0.75);
+    }
+    .product-name {
+      font-size: .9em;
+    }
+    .product-price {
+      color: #F36;
+    }
+    .rmb {
+      font-family: arial;
+    }
+    .btn-ctnr {
+      margin: 5% 0;
+      text-align: center;
+    }
+    .buy-btn {
+      display: inline-block;
+      border: 1px solid #F36;
+      text-decoration: none;
+      color: #F36;
+      width: 50%;
+      height: 2.2em;
+      line-height: 2.2;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <section class="product-img-cntr">
+    <img src=" {{ product.images.0 }} " alt="产品图片">
+  </section>
+  <section class="product-detail-ctnr">
+    <h1 class="product-name">{{ product.title }}</h1>
+    <p class="product-price"><span class="rmb">￥</span> {{ product.price }}</p>
+    <p class="btn-ctnr">
+      <a class="buy-btn" href="{{ product.url }}">
+        <img src="{{ STATIC_URL }}/img/mobile/buy-icon.png" alt="" style="height: 1em;">
+        <span>购买</span>
+      </a>
+    </p>
+  </section>
+</body>
+</html>

@@ -11,7 +11,7 @@
 
 {% block content%}
 <div class="sortable row-fluid">
-    <a data-rel="tooltip" title="{{ new_user_counts }} 今日新用户." class="well span3 top-block" href="#">
+    <a data-rel="tooltip" title="{{ new_user_counts }} 今日新用户." class="well span3 top-block" href="/admin/users/">
         <span class="icon32 icon-red icon-user"></span>
         <div>用户总数</div>
         <div>{% if total_user_counts %}{{ total_user_counts }}{% else %}0{% endif %}</div>

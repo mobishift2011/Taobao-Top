@@ -52,6 +52,7 @@ class PwdRstToken(Document):
 class Product(Document):
     title = StringField()
     description = StringField()
+    origin_url = URLField()
     url = URLField(verify_exists=True)
     images = ListField()
     price = FloatField()
@@ -80,9 +81,10 @@ class Paper(Document):
     answers = DictField() # The answers to the certain quizes aggregated by all participants.
     bonus = FloatField(default=0.0)
     deadline = DateTimeField() # The time to get the bonus.
+    is_online = BooleanField(default=False)
 
     meta = {
-        'indexes': ['period']
+        'indexes': ['period', 'is_online']
     }
 
 
@@ -122,7 +124,3 @@ class FavoriteCategory(Document):
     meta = {
         'indexes': ['user']
     }
-
-# "error_code" = 4;
-#     "error_message" = "user 527c453d7a56cb0cebc4308e already answered 528b05537a56cb27f6b64792";
-# }

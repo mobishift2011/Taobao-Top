@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block breadcrumb %}
+<li>
+    <a href="/admin/">Home</a> <span class="divider">/</span>
+</li>
+<li>
+    <a href="/admin/papers/">题目</a>
+</li>
+{% endblock %}
+
+{% block content %}
+<form class="form-horizontal" method='post' action={% if paper %}"/admin/paper/{{ paper.id }}/"{% else %}"/admin/paper/"{% endif %}>
+    <fieldset>
+        <div class="control-group">
+            <label class="control-label" for="period">题集日期</label>
+            <div class="controls">
+                <input type="text" class="input-xlarge datepicker" id="date01" name="period" value="{{ paper.period|date:"m/d/Y" }}">
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="bonus">奖金 RMB</label>
+            <div class="controls">
+                <input class="input-xlarge focused" id="focusedInput" type="number" step=0.01 name="bonus" value="{{ paper.bonus }}">
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="deadline">领奖截止日期</label>
+            <div class="controls">
+                <input type="text" class="input-xlarge datepicker" id="date02" name="deadline" value="{{ paper.deadline|date:"m/d/Y" }}">
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">上线</label>
+            <div class="controls">
+
+                <!-- Inline Radios -->
+                {% if paper.is_online %}
+                <label class="radio inline">
+                    <input type="radio" value=1 checked="checked" name="is_online">
+                    是
+                </label>
+                <label class="radio inline">
+                    <input type="radio" value=0 name="is_online">
+                    否
+                </label>
+                {% else %}
+                <label class="radio inline">
+                    <input type="radio" value=1 name="is_online">
+                    是
+                </label>
+                <label class="radio inline">
+                    <input type="radio" value=0 checked="checked" name="is_online">
+                    否
+                </label>
+                {% endif %}
+            </div>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <button type="reset" class="btn">Cancel</button>
+        </div>
+    </fieldset>
+</form>
+{% endblock %}

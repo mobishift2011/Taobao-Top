@@ -18,7 +18,7 @@ $(document).ready(function(){
 	
 	function switch_theme(theme_name)
 	{
-		$('#bs-css').attr('href','css/bootstrap-'+theme_name+'.css');
+		$('#bs-css').attr('href','/assets/css/bootstrap-'+theme_name+'.css');
 	}
 	
 	//ajax menu checkbox
@@ -36,7 +36,6 @@ $(document).ready(function(){
 		$('.login-box').find('.input-large').removeClass('span10');
 		
 	}
-	
 	
 	//highlight current / active link
 	$('ul.main-menu li a').each(function(){
@@ -151,7 +150,7 @@ function docReady(){
 
 	//file manager
 	var elf = $('.file-manager').elfinder({
-		url : 'misc/elfinder-connector/connector.php'  // connector URL (REQUIRED)
+		url : '/assets/misc/elfinder-connector/connector.php'  // connector URL (REQUIRED)
 	}).elfinder('instance');
 
 	//iOS / iPhone style toggle switch
@@ -164,8 +163,8 @@ function docReady(){
 
 	//uploadify - multiple uploads
 	$('#file_upload').uploadify({
-		'swf'      : 'misc/uploadify.swf',
-		'uploader' : 'misc/uploadify.php'
+		'swf'      : '/assets/misc/uploadify.swf',
+		'uploader' : '/assets/misc/uploadify.php'
 		// Put your options here
 	});
 

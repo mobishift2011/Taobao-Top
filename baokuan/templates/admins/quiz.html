@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block breadcrumb %}
+<li>
+    <a href="/admin/">Home</a> <span class="divider">/</span>
+</li>
+<li>
+    <a href="/admin/paper/{{ paper.id }}/quiz/{{ quiz.id }}">题目</a>
+</li>
+{% endblock %}
+
+{% block content %}
+<form class="form-horizontal" method='post' action={% if quiz %}"/admin/paper/{{ paper.id }}/quiz/{{ quiz.id }}/"{% else %}"/admin/paper/{{ paper.id }}/quiz/"{% endif %}>
+    <fieldset>
+        <div class="control-group">
+            <label class="control-label" for="title">商品名称</label>
+            <div class="controls">
+                <input class="input-xlarge focused" id="focusedInput" type="text" name="title" value="{{ quiz.title }}">
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="description">商品描述</label>
+            <div class="controls">
+                <div class="textarea">
+                    <textarea class="" name="description">{{ quiz.description }}</textarea>
+                </div>
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="images">商品图片</label>
+            <div class="controls">
+                <input class="input-xlarge focused" id="focusedInput" type="url" name="images" value="{{ quiz.images.0 }}">
+            </div>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <button type="reset" class="btn">Cancel</button>
+        </div>
+    </fieldset>
+</form>
+{% endblock %}

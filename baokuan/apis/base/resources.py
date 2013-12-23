@@ -242,7 +242,7 @@ class UserResource(BaseResource):
             if user.email == email:
                 return self.create_response(request, {'error_code': 2, 'error_message': 'email exists'})
             if user.device == device:
-                return self.create_response(request, {'error_code': 3, 'error_message': 'device has been registered'})
+                return self.create_response(request, {'error_code': 3, 'error_message': u'device has been registered {}'.format(device)})
             if user.screen_name == screen_name:
                 return self.create_response(request, {'error_code': 4, 'error_message': 'screen_name exists'})
 
@@ -296,28 +296,32 @@ class UserResource(BaseResource):
         return self.create_response(request, {'success': True})
 
     def forget_password(self, request, **kwargs):
-        self.method_check(request, allowed=('post',))
-        data = self.deserialize(request, request.body, format=request.META.get('CONTENT_TYPE', 'application/json'))
-        user = User.objects(email=data.get('email')).first()
-        if user is None:
-            return self.create_response(request, {'error_message': 'email error'}, HttpBadRequest)
-        
-        token = signing.dumps(user.id, key=SECRET_KEY)
-        PwdRstToken.objects(user=user).update_one(
-            set__token = token,
-            set__generated_at = datetime.utcnow(),
-            set__expires = 10,
-            upsert = True
-        )
+        try:
+            self.method_check(request, allowed=('post',))
+            data = self.deserialize(request, request.body, format=request.META.get('CONTENT_TYPE', 'application/json'))
+            user = User.objects(email=data.get('email')).first()
+            if user is None:
+                return self.create_response(request, {'error_message': 'email error'}, HttpBadRequest)
+            
+            token = signing.dumps(user.id, key=SECRET_KEY)
+            PwdRstToken.objects(user=user).update_one(
+                set__token = token,
+                set__generated_at = datetime.utcnow(),
+                set__expires = 10,
+                upsert = True
+            )
 
-        link = reverse('api_reset_password', kwargs={'resource_name': self._meta.resource_name, 'api_name': 'v1', 'user_id': user.id})
-        url = u'{}?token={}&format=json'.format(request.build_absolute_uri(link), token)
-        c = Context({'user': user,  'APP_NAME': APP_NAME, 'url': url})
-        html_content = loader.get_template('fgtpwd.html').render(c)
-        email = EmailMultiAlternatives(u'验证登录邮箱【{}安全中心 】'.format(APP_NAME), '', EMAIL_HOST_USER, [user.email])
-        email.attach_alternative(html_content, "text/html")
-        email.send()
-        return self.create_response(request, {'success': True})
+            link = reverse('api_reset_password', kwargs={'resource_name': self._meta.resource_name, 'api_name': 'v1', 'user_id': user.id})
+            url = u'{}?token={}&format=json'.format(request.build_absolute_uri(link), token)
+            c = Context({'user': user,  'APP_NAME': APP_NAME, 'url': url})
+            html_content = loader.get_template('fgtpwd.html').render(c)
+            email = EmailMultiAlternatives(u'验证登录邮箱【{}安全中心 】'.format(APP_NAME), '', EMAIL_HOST_USER, [user.email])
+            email.attach_alternative(html_content, "text/html")
+            email.send()
+            return self.create_response(request, {'success': True})
+        except:
+            traceback.print_exc()
+            raise
 
     def reset_password(self, request, **kwargs):
         if request.method == 'GET':
@@ -382,7 +386,7 @@ class PaperResource(BaseResource):
     quizes = fields.ReferencedListField(of='apis.base.resources.QuizResource', 
                                             attribute='quizes', full=True, null=True)
     class Meta:
-        queryset = Paper.objects()
+        queryset = Paper.objects(is_online=True)
         allowed_methods = ('get',)
         authentication = UserAuthentication()
         authorization = Authorization()
@@ -403,13 +407,13 @@ class PaperResource(BaseResource):
     def current(self, request, **kwargs):
         today = datetime.utcnow().replace(hour=0,minute=0,second=0, microsecond=0)
         tomorrow = today + timedelta(days=1)
-        params = dict(request.GET.dict().items() + {'period__gt': today, 'period__lt': tomorrow}.items())
+        params = dict(request.GET.dict().items() + {'period__gte': today, 'period__lt': tomorrow}.items())
         return redirect(u'/api/v1/paper/?{}'.format(urlencode(params)))
 
     def yesterday(self, request, **kwargs):
         today = datetime.utcnow().replace(hour=0,minute=0,second=0, microsecond=0)
         yesterday = today - timedelta(days=1)
-        params = dict(request.GET.dict().items() + {'period__gt': yesterday, 'period__lt': today}.items())
+        params = dict(request.GET.dict().items() + {'period__gte': yesterday, 'period__lt': today}.items())
         return redirect(u'/api/v1/paper/history/?{}'.format(urlencode(params)))
 
     def history(self, request, **kwargs):
@@ -433,6 +437,9 @@ class PaperResource(BaseResource):
                         if quiz['id'] in paper_answers \
                             and prod['id'] in paper_answers[quiz['id']]:
                                 prod['score'] = paper_answers[quiz['id']][prod['id']]
+
+                if 'answers' in data:
+                    del data['answers']
 
             return self.create_response(request, res)
 
@@ -464,6 +471,9 @@ class PaperResource(BaseResource):
                         if mark:
                             prod['is_mark'] = (quiz['id'] in mark_answers) \
                                 and (prod['id'] == mark_answers[quiz['id']])
+
+                if 'answers' in data:
+                    del data['answers']
 
             return self.create_response(request, res)
 
@@ -620,7 +630,7 @@ class LotteryResource(BaseResource):
     def yesterday(self, request, **kwargs):
         today = datetime.utcnow().replace(hour=0,minute=0,second=0, microsecond=0)
         yesterday = today - timedelta(days=1)
-        params = dict(request.GET.dict().items() + {'period__gt': yesterday, 'period__lt': today}.items())
+        params = dict(request.GET.dict().items() + {'period__gte': yesterday, 'period__lt': today}.items())
         return redirect(u'/api/v1/lottery/?{}'.format(urlencode(params)))
 
 
@@ -628,13 +638,13 @@ class FavoriteCategoryResource(BaseResource):
     user = fields.ReferenceField(to='apis.base.resources.UserResource', 
                                             attribute='user', full=False, null=True)
 
-
     class Meta:
         queryset = FavoriteCategory.objects()
         allowed_methods = ('get', 'post')
         detail_allowed_methods = ('get',)
         authentication = UserAuthentication()
-        fields = ['user']
+        excludes = ('resource_uri',)
+        filtering = {'user': ALL}
 
     def post_list(self, request, **kwargs):
         user = request.user

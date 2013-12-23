@@ -10,6 +10,7 @@ if env == 'DEV':
     DEBUG = True
     TEMPLATE_DEBUG = DEBUG
     MONGOHOST = '127.0.0.1'
+    BAOKUAN_HOST = 'http://192.168.2.111:8003'
 
 elif env == 'PRODUCTION':
     DEBUG = False
@@ -70,17 +71,17 @@ MEDIA_URL = ''
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/var/www/example.com/static/"
-STATIC_ROOT = os.path.join(ROOT_PATH)
+STATIC_ROOT = ROOT_PATH
 
 # URL prefix for static files.
 # Example: "http://example.com/static/", "http://static.example.com/"
-STATIC_URL = '/static/'
+STATIC_URL = '/assets/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    u'{}/static'.format(STATIC_ROOT),
+    os.path.join(STATIC_ROOT, 'static'),
 )
 
 # List of finder classes that know how to find static files in
@@ -102,7 +103,7 @@ TEMPLATE_LOADERS = (
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
 )
@@ -143,7 +144,7 @@ EMAIL_HOST_USER = 'no-reply@favbuy.com'
 EMAIL_HOST_PASSWORD = 'tempfavbuy88'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_BACKEND = 'djcelery_email.backends.CeleryEmailBackend'
+# EMAIL_BACKEND = 'djcelery_email.backends.CeleryEmailBackend'
 
 CELERY_EMAIL_TASK_CONFIG = {
     'queue' : 'email',
