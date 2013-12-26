@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block content %}
-<form class="form-horizontal" method='post' action={% if quiz %}"/admin/paper/{{ paper.id }}/quiz/{{ quiz.id }}/"{% else %}"/admin/paper/{{ paper.id }}/quiz/"{% endif %}>
+<form class="form-horizontal" method='post' action={% if quiz %}"/admin/paper/{{ paper.id }}/quiz/{{ quiz.id }}/"{% else %}"/admin/paper/{{ paper.id }}/quiz/"{% endif %}>{% csrf_token %}
     <fieldset>
         <div class="control-group">
             <label class="control-label" for="title">商品名称</label>

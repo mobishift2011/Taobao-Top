@@ -5,14 +5,14 @@ import os
 APP_NAME = 'baokuan'
 ROOT_PATH = os.path.abspath(os.path.dirname(__file__))
 env = os.getenv('ENV') or 'DEV'
-env = env.upper()
-if env == 'DEV':
+ENV = env.upper()
+if ENV == 'DEV':
     DEBUG = True
     TEMPLATE_DEBUG = DEBUG
     MONGOHOST = '127.0.0.1'
     BAOKUAN_HOST = 'http://192.168.2.111:8003'
 
-elif env == 'PRODUCTION':
+elif ENV == 'PRODUCTION':
     DEBUG = False
     TEMPLATE_DEBUG = DEBUG
     MONGOHOST = '127.0.0.1'
@@ -103,7 +103,7 @@ TEMPLATE_LOADERS = (
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    # 'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
 )

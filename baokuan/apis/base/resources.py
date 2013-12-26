@@ -361,6 +361,7 @@ class UserResource(BaseResource):
             user.save()
             return
 
+
 class ProductResource(BaseResource):
     class Meta:
         queryset = Product.objects()
@@ -534,6 +535,7 @@ class MarkResource(BaseResource):
             return self.create_response(request, validation_error, HttpBadRequest)
 
         mark.phone = phone
+        mark.is_get_bonus = 1
         mark.save()
         return self.create_response(request, {'success': True})
 
@@ -658,3 +660,39 @@ class FavoriteCategoryResource(BaseResource):
             success = True
 
         return self.create_response(request, {'success': success})
+
+
+class ShareResource(BaseResource):
+    user = fields.ReferenceField(to='apis.base.resources.UserResource', 
+                                            attribute='user', full=False, null=True)
+    product = fields.ReferenceField(to='apis.base.resources.ProductResource', 
+                                            attribute='product', full=False, null=True)
+    class Meta:
+        queryset = Share.objects()
+        allowed_methods = ('post',)
+        # authentication = UserAuthentication()
+        excludes = ('resource_uri',)
+        filtering = {'user': ALL, 'product': ALL}
+
+    def post_list(self, request, **kwargs):
+        # if not request.user.is_authenticated():
+        #     return self.create_response(request, {}, HttpUnauthorized)
+
+        data = self.deserialize(request, request.body, format=request.META.get('CONTENT_TYPE', 'application/json'))
+        product_id = data.get('product_id')
+        num = data.get('num', 0)
+
+        if not product_id:
+            return self.create_response(request, {'product_id': 'post param is required'}, HttpBadRequest)
+
+        product = Product.objects(id=product_id).first()
+        if not product:
+            return self.create_response(request, {'product_id': 'post param is not correct'}, HttpBadRequest)
+
+        # Share.objects.get_or_create(user=request.user, product=product)
+        # shared_count = Share.objects(product=product).count()
+        # product.shared = shared_count
+        shared_count = product.shared + num
+        Product.objects(id=product_id).update_one(set__shared=shared_count)
+        
+        return self.create_response(request, {'shared': shared_count})

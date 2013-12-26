@@ -10,6 +10,7 @@ v1_api.register(QuizResource())
 v1_api.register(PaperResource())
 v1_api.register(MarkResource())
 v1_api.register(LotteryResource())
+v1_api.register(ShareResource())
 v1_api.register(FavoriteCategoryResource())
 
 from notification.resources import *

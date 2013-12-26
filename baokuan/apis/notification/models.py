@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
+from django.conf import settings
 from mongoengine import *
 from apis.base.models import User
 from APNSWrapper import *
@@ -33,8 +34,8 @@ class Notification(Document):
         badge = kwargs.get('badge', self.configs.get('badge'))
         sound = kwargs.get('sound', self.configs.get('sound'))
         device_token = binascii.unhexlify(self.device_token)
-        pem_path = os.path.join(os.path.dirname(__file__), 'cert.pem')
-        wrapper = APNSNotificationWrapper(pem_path, True)
+        pem_path = os.path.join(os.path.dirname(__file__), u'cert_{}.pem'.format(settings.ENV).lower())
+        wrapper = APNSNotificationWrapper(pem_path, settings.DEBUG)
         message = APNSNotification()
         message.token(device_token)
         message.alert(kwargs.get('alert', ''))

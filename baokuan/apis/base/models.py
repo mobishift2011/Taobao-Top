@@ -124,3 +124,12 @@ class FavoriteCategory(Document):
     meta = {
         'indexes': ['user']
     }
+
+
+class Share(Document):
+    user = ReferenceField(User, required=True)
+    product = ReferenceField(Product, required=True, unique_with='user')
+
+    meta = {
+        'indexes': ['product']
+    }

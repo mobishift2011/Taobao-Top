@@ -13,7 +13,7 @@
 {% endblock %}
 
 {% block content %}
-<form id="form-product" class="form-horizontal" {% if product %}method="POST" action="/admin/quiz/{{ quiz.id }}/product/{{ product.id }}/"{% endif %}>
+<form id="form-product" class="form-horizontal" {% if product %}method="POST" action="/admin/quiz/{{ quiz.id }}/product/{{ product.id }}/"{% endif %}>{% csrf_token %}
     <fieldset>
         <div class="control-group">
             <label class="control-label" for="tid">淘宝商品id</label>
