@@ -8,4 +8,4 @@ mongoengine>=0.8.4
 blinker
 requests
 APNSWrapper
-jpush
+jpush>=2.0.1

@@ -4,7 +4,7 @@
         "MIN": "0.1"
     },
     "android": {
-        "CURRENT": "2",
+        "CURRENT": "1",
         "MIN": "1",
         "APP_STORE": ""
     }

@@ -4,10 +4,12 @@ from django.conf import settings
 from mongoengine import *
 from apis.base.models import User
 from APNSWrapper import *
+from jpush import JPushClient
 from datetime import datetime
 
 import binascii
 import os
+import time
 
 class Notification(Document):
     user = ReferenceField(User, required=True, reverse_delete_rule=CASCADE)
@@ -49,7 +51,7 @@ class Notification(Document):
         wrapper.append(message)
         wrapper.notify()
 
-    def android_notify(self):
+    def android_notify(self, **kwargs):
         """
         JPush API 对访问次数，具有频率控制。即一定的时间窗口内，API 允许调用的次数是有限制的。
 
@@ -63,6 +65,16 @@ class Notification(Document):
         Report Received API 2400
         收费版本根据终端用户规模的不同，具有不同级别的频率。如有需要，请访问 JPush价格说明了解更多
         """
+        sendno = int(time.time())
+        app_key = 'da2645a5d128839db1ae2029'
+        master_secret = '233e2277f5a6bf6350c71104'
+
+        jpush_client = JPushClient(master_secret)
+
+        # Send message by tag
+        jpush_client.send_notification_by_alias(self.device_token, app_key, sendno, 'user score and rank',
+                                                                    '',
+                                                                    kwargs.get('alert', ''), 'android')
 
 
 class NotificationHistory(Document):

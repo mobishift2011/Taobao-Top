@@ -1,0 +1,4 @@
+* 00 * * * cd ~/projects/baokuan/ && .env.sh && cd baokuan && python cron/score_rank.py
+* 00 * * * cd ~/projects/baokuan/ && .env.sh && cd baokuan && python cron/paper_online.py
+* 09 * * * cd ~/projects/baokuan/ && .env.sh && cd baokuan && python cron/lottery_online.py
+* 09 * * * cd ~/projects/baokuan/ && .env.sh && cd baokuan && python cron/notification.py

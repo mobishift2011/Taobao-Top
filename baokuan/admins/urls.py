@@ -12,6 +12,8 @@ urlpatterns = patterns('admins.admin',
     url(r'^paper/(?P<paper_id>\w+)/quiz/(?P<quiz_id>\w+)/$', 'paperQuizHandle'),
     url(r'^paper/(?P<paper_id>\w+)/$', 'paperHandle'),
     url(r'^paper/$', 'paperCreateHandle'),
+    url(r'^lotteries/$', 'lotteriesHandle'),
+    url(r'^mark/$', 'markHandle'),
     url(r'^baokuan/category/(?P<cat_id>\w+)/$', 'baokuan_by_category'),
     url(r'^baokuan/category/$', 'categories'),
 )

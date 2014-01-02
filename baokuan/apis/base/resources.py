@@ -2,6 +2,7 @@
 # -*- encoding: utf-8 -*-
 from settings import SECRET_KEY, EMAIL_HOST_USER, APP_NAME, AUTHENTICATION_BACKENDS
 from models import *
+from apis.notification.models import Notification
 from validations import *
 from authentications import UserAuthentication
 
@@ -209,6 +210,7 @@ class UserResource(BaseResource):
 
     def logout(self, request, **kwargs):
         if request.user and request.user.is_authenticated():
+            Notification.objects(user = request.user).delete()
             logout(request)
             return self.create_response(request, {'success': True})
         else:
@@ -584,6 +586,10 @@ class MarkResource(BaseResource):
                 return self.create_response(request, \
                     {'error_code': 3, 'error_message': u'product {} not exists for quiz {}'.format(product_id, quiz_id)})
 
+        if Mark.objects(user=user, paper=paper).first():
+            return self.create_response(request, \
+                {'error_code': 4, 'error_message': u'user {} already answered {}'.format(user_id, paper_id)})
+
         try:
             Mark(user=user, paper=paper, answers=answers, period=paper.period).save()
         except NotUniqueError:
@@ -599,13 +605,15 @@ class MarkResource(BaseResource):
         if not user.is_authenticated():
             return self.create_response(request, {'error_message': 'not login'}, response_class=HttpUnauthorized)
 
-        mark = Mark.objects(user=user).order_by('-period').first()
+        today = datetime.utcnow().replace(hour=0,minute=0,second=0, microsecond=0)
+        mark = Mark.objects(user=user, period__lt=today).order_by('-period').first()
 
         if mark:
             res['rank'] = mark.rank
             res['score'] = mark.score
             res['bonus'] = mark.bonus
             res['period'] = mark.period
+            res['is_get_bonus'] = mark.is_get_bonus
 
         return self.create_response(request, res)
 
@@ -617,7 +625,7 @@ class LotteryResource(BaseResource):
                                             attribute='paper', full=True, null=True)
 
     class Meta:
-        queryset = Lottery.objects()
+        queryset = Lottery.objects(is_online=True)
         allowed_methods = ('get',)
         authentication = UserAuthentication()
         authorization = Authorization()

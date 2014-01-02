@@ -111,6 +111,7 @@ class Lottery(Document):
     score = IntField() # the highest user score
     paper = ReferenceField(Paper, required=True, unique=True)
     period = DateTimeField(required=True)
+    is_online = BooleanField(default=False)
 
     meta = {
         'indexes': ['period']

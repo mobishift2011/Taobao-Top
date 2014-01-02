@@ -5,12 +5,64 @@
     <a href="/admin/">Home</a> <span class="divider">/</span>
 </li>
 <li>
-    <a href="/admin/lottery/">题目</a>
+    <a href="/admin/lotteries/">领奖</a>
 </li>
 {% endblock %}
 
 {% block content %}
-<div class="row-fluid sortable" id="{{ paper.id }}">
-</div>
+    {% for lottery in lotteries %}
+    <div class="row-fluid sortable">
+        <div class="box span12">
+            <div class="box-header well" data-original-title>
+                <h2><i class="icon-list-alt"></i> {{ lottery.period|date:"Y-m-d" }}</h2>
+                <div class="box-icon">
+                    <a href="#" class="btn btn-minimize btn-round"><i class="icon-chevron-up"></i></a>
+                    <a href="#" class="btn btn-close btn-round"><i class="icon-remove"></i></a>
+                </div>
+            </div>
+            <div class="box-content">
+                <div class="box-content">
+                    <div class="page-header">
+                        <h2> 最高分<small style="margin-left: 5px;">{{ lottery.score }}</small></h2>
+                        <h2> 总奖金<small style="margin-left: 5px;">{{ lottery.paper.bonus }}</small></h2>
+                        <h2> 答案<small style="margin-left: 5px;"></small></h2>
+                    </div>
+                    <ul class="dashboard-list">
+                        {% for user in lottery.users %}
+                        <li>
+                            <a href="#">
+                                <img class="dashboard-avatar" alt="{{ user.screen_name }}" src="{{ quiz.images.0 }}">
+                            </a>
+                            <strong>用户名:</strong> <a href="#">{{ user.username }}</a><br>
+                            <strong>设备:</strong><a href="#">{{ user.device }}</a><br>
+                            <strong>第三方账号:</strong>
+                            {% for account in user.accounts %}
+                            <a href="#">{{ account.screen_name }} - {{ account.platform }}</a>
+                            {% endfor %}
+                            <br>
+                            <a pid={{ lottery.paper.id }} uid={{ user.id }} class="mark"><i class="icon-question-sign"></i></a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div><!--/span-->
+    </div><!--/row-->
+    {% endfor %}
 
+{% endblock %}
+
+{% block js %}
+    $('a.mark').click(function(){
+        var paper_id = $(this).attr('pid');
+        var user_id = $(this).attr('uid');
+        var url = '/admin/mark/?user_id='+user_id+'&paper_id='+paper_id;
+        $.get(url, function(data){
+            data = JSON.parse(data);
+            res = "rank="+data.rank+'\n';
+            res += "bonus="+data.bonus+'\n';
+            res += "is_get_bonus="+data.is_get_bonus+'\n'; 
+            alert(res);
+        });
+    });
 {% endblock %}

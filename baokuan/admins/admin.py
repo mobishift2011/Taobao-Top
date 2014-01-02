@@ -217,7 +217,7 @@ category_dict = {cat['cid']: cat['name'] for cat in db.categories.find({'$or':[{
 
 def baokuan_by_category(request, cat_id):
     url = u'{}/api/v1/cate/hotproducts_list/?cid={}&format=json'.format(settings.BAOKUAN_HOST, cat_id)
-    res = requests.get(url)
+    res = requests.get(url, auth=('favbuy', 'tempfavbuy'))
     items = res.json().get('items', [])
     return HttpResponse(simplejson.dumps({'products': items, 'categories': category_dict}))
 
@@ -227,5 +227,18 @@ def categories(request):
 
 
 def lotteriesHandle(request):
-    lotteries = Lottery.objects()
-    return render(request, 'lottery.html', {'lotteries': lotteries})
+    lotteries = Lottery.objects().order_by('-period')
+    return render(request, 'lotteries.html', {'lotteries': lotteries})
+
+def markHandle(request):
+    paper_id = request.GET.get('paper_id')
+    user_id = request.GET.get('user_id')
+    user = User.objects(id=user_id).first()
+    paper = Paper.objects(id=paper_id).first()
+    mark = Mark.objects(user=user, paper=paper).first()
+    return HttpResponse(simplejson.dumps({
+            'rank': mark.rank,
+            'score': mark.score,
+            'bonus': mark.bonus,
+            'is_get_bonus': mark.is_get_bonus,
+        }))
