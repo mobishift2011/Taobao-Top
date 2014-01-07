@@ -110,6 +110,7 @@ def score_and_rank(period=None):
                 user_id = str(user.id)
                 mark.score = user_score[user_id]
                 mark.rank = user_rank[user_id]
+                mark.is_online = True
                 mark.save()
 
                 print u'User {}.{} score: {}, rank: {}'.format(mark.user.username, user_id, mark.score, mark.rank)

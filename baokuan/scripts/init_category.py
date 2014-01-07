@@ -5,6 +5,7 @@ import pymongo
 import os
 
 client = pymongo.MongoClient(host='repo.favbuy.org')
+print client
 db = client['godzilla']
 local_client = pymongo.MongoClient(host=settings.MONGOHOST)
 local_db = local_client[settings.APP_NAME]

@@ -488,7 +488,7 @@ class MarkResource(BaseResource):
                                             attribute='paper', full=True, null=True)
 
     class Meta:
-        queryset = Mark.objects()
+        queryset = Mark.objects(is_online=True)
         allowed_methods = ('get', 'post')
         authentication = UserAuthentication()
         authorization = Authorization()

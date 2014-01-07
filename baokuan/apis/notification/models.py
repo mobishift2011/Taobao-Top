@@ -35,7 +35,7 @@ class Notification(Document):
 
         badge = kwargs.get('badge', self.configs.get('badge'))
         sound = kwargs.get('sound', self.configs.get('sound'))
-        device_token = binascii.unhexlify(self.device_token)
+        device_token = binascii.unhexlify(self.device_token.replace(' ', ''))
         pem_path = os.path.join(os.path.dirname(__file__), u'cert_{}.pem'.format(settings.ENV).lower())
         wrapper = APNSNotificationWrapper(pem_path, settings.DEBUG)
         message = APNSNotification()
@@ -47,7 +47,7 @@ class Notification(Document):
 
         if sound:
             message.sound()
-
+        
         wrapper.append(message)
         wrapper.notify()
 

@@ -17,9 +17,11 @@ class Account(Document):
         'indexes': [('aid', 'platform')]
     }
 
+def genid():
+    return str(ObjectId())
 
 class User(User):
-    id = StringField(primary_key=True, default=str(ObjectId()))
+    id = StringField(primary_key=True, default=genid)
     screen_name = StringField()
     phone = StringField()
     device = StringField()
@@ -99,10 +101,11 @@ class Mark(Document):
     is_get_bonus = IntField(default=0) # 0: unaccept, 1: beging processed, 2: accepted.
     total_awards = IntField(default=0)
     phone = StringField()
+    is_online = BooleanField(default=False)
     created_at = DateTimeField(default=datetime.utcnow())
 
     meta = {
-        'indexes': [('user', 'paper'), 'created_at', 'period']
+        'indexes': [('user', 'paper'), 'created_at', 'period', 'is_online']
     }
 
 
@@ -114,7 +117,7 @@ class Lottery(Document):
     is_online = BooleanField(default=False)
 
     meta = {
-        'indexes': ['period']
+        'indexes': ['period', 'is_online']
     }
 
 

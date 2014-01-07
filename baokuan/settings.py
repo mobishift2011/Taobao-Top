@@ -17,6 +17,13 @@ elif ENV == 'PRODUCTION':
     TEMPLATE_DEBUG = DEBUG
     MONGOHOST = '127.0.0.1'
 
+elif ENV == 'TEST':
+    DEBUG = True
+    TEMPLATE_DEBUG = DEBUG
+    MONGOHOST = '127.0.0.1'
+    BAOKUAN_HOST = 'http://192.168.2.111:8003'
+    APP_NAME = 'baokuan_test'
+
 connect(host=MONGOHOST, db=APP_NAME)
 MONGOENGINE_USER_DOCUMENT = 'mongoengine.django.auth.User'
 AUTHENTICATION_BACKENDS = (

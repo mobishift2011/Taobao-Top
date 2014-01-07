@@ -217,6 +217,7 @@ category_dict = {cat['cid']: cat['name'] for cat in db.categories.find({'$or':[{
 
 def baokuan_by_category(request, cat_id):
     url = u'{}/api/v1/cate/hotproducts_list/?cid={}&format=json'.format(settings.BAOKUAN_HOST, cat_id)
+    print '~~~~~~~~~', url
     res = requests.get(url, auth=('favbuy', 'tempfavbuy'))
     items = res.json().get('items', [])
     return HttpResponse(simplejson.dumps({'products': items, 'categories': category_dict}))
