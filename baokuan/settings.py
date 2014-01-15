@@ -10,18 +10,19 @@ if ENV == 'DEV':
     DEBUG = True
     TEMPLATE_DEBUG = DEBUG
     MONGOHOST = '127.0.0.1'
-    BAOKUAN_HOST = 'http://192.168.2.111:8003'
+    BAOKUAN_HOST = 'http://222.73.105.208/'
 
 elif ENV == 'PRODUCTION':
     DEBUG = False
     TEMPLATE_DEBUG = DEBUG
     MONGOHOST = '127.0.0.1'
+    BAOKUAN_HOST = 'http://222.73.105.208/'
 
 elif ENV == 'TEST':
     DEBUG = True
     TEMPLATE_DEBUG = DEBUG
     MONGOHOST = '127.0.0.1'
-    BAOKUAN_HOST = 'http://192.168.2.111:8003'
+    BAOKUAN_HOST = 'http://222.73.105.208/'
     APP_NAME = 'baokuan_test'
 
 connect(host=MONGOHOST, db=APP_NAME)

@@ -9,3 +9,5 @@ blinker
 requests
 APNSWrapper
 jpush>=2.0.1
+Fabric
+cuisine

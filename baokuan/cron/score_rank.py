@@ -47,7 +47,7 @@ def score_and_rank(period=None):
         print 'Collecting votes from user ............';
         for mark in Mark.objects(paper=paper):
             """Aggreagte and get totoal votes of a certain quiz."""
-            print; print u'Voting User {}.{}'.format(mark.user.username, mark.user.id)
+            print; print u'Voting User {}.{}'.format(mark.user, mark.user.id)
 
             for k, v in mark.answers.iteritems():
                 quiz_id = str(k)
@@ -91,7 +91,7 @@ def score_and_rank(period=None):
                 user_score[user_id] += score
 
                 print u'user {}.{} get score {} for prod {} to quiz {}'.format( \
-                    user_id, mark.user.username, score, product_id, quiz_id)
+                    user_id, mark.user, score, product_id, quiz_id)
             print u"totoal score {}".format(user_score[user_id]); print
 
         rank_list = sorted(user_score.keys(), key=lambda x: user_score[x], reverse=True)
@@ -113,7 +113,7 @@ def score_and_rank(period=None):
                 mark.is_online = True
                 mark.save()
 
-                print u'User {}.{} score: {}, rank: {}'.format(mark.user.username, user_id, mark.score, mark.rank)
+                print u'User {}.{} score: {}, rank: {}'.format(mark.user, user_id, mark.score, mark.rank)
             print
 
         paper.answers = paper_answers

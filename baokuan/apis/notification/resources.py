@@ -31,7 +31,8 @@ class NotificationResource(BaseResource):
         try:
             return super(NotificationResource, self).post_list(request, **kwargs)
         except NotUniqueError as e:
-            return self.create_response(request, {'error_code': 1, 'error_message': e})
+            return self.create_response(request, {}, 201)
+            # return self.create_response(request, {'error_code': 1, 'error_message': e})
 
     def delete(self, request, **kwargs):
         user = request.user

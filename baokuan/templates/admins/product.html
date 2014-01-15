@@ -92,6 +92,7 @@
                     <ul class="thumbnails gallery" id="category_products">
                     </ul>
                 </div>
+                <div id="paginator"></div>
             </div><!--/span-->
         </div>
     {% endif %}
@@ -109,12 +110,10 @@
         });
     });
 
-    $('#select_category').change(function(){
-        var cat_id = $(this).children('option:selected').val();
-        var url = '/admin/baokuan/category/' + cat_id + '/';
-
-        $.get(url, function(data){
-            var products = JSON.parse(data)['products'];
+    function get_products(url, cat_id){
+        $.get(url, function(res){
+            var data = JSON.parse(res);
+            var products = data['products'];
             var products_node = $('#category_products');
             products_node.empty();
 
@@ -139,7 +138,71 @@
                 $('#form-product input[name$="images"]').val(images);
                 $('#form-product input[name$="origin_url"]').val('http://detail.tmall.com/item.htm?id='+tid);
             });
+
+            var paginator_node = $('#paginator');
+            paginator_node.empty();
+
+            var pagination_str = '<div class="pagination" page="'+ data.current + '" limit="' + data.limit + '" end="' + data.total_page + '">';
+            pagination_str += '<ul>';
+            if(data.has_previous){
+                pagination_str += '<li><a class="start">首页</a></li>';
+                pagination_str += '<li><a class="prev"><<</a></li>';
+            }
+
+            for(var i in data.pages){
+                var page = data.pages[i];
+                var condition = (data.current == page) ? 'class="active"' : 'class="'+page+'"';
+                pagination_str += '<li '+ condition +'><a '+condition +'>'+ page +'</a></li>';
+            }
+
+            if(data.has_next){
+                pagination_str += '<li><a class="next">>></a></li>';
+                pagination_str += '<li><a class="end">末页</a></li>';
+            }
+            pagination_str += '<li class="lead text-info"> (' + data.current +' / ' + data.total_page + ')</li>';
+            pagination_str += '</ul>';
+            pagination_str += '</div>';
+
+            $('#paginator').append(pagination_str);
+            $('div.pagination li a').click(function(){
+                var this_node = $(this);
+                var page_node = $('.pagination');
+                var current_page = page_node.attr('page');
+                var limit = page_node.attr('limit');
+                var end_page = page_node.attr('end');
+
+                var jump_page = 1;
+                if(this_node.attr('class') == 'active'){
+                    return;
+                }
+                else if(this_node.attr('class') == 'start'){
+                    jump_page = 1;
+                }
+                else if(this_node.attr('class') == 'prev'){
+                    jump_page = current_page - 1;
+                }
+                else if(this_node.attr('class') == 'next'){
+                    jump_page = current_page + 1;
+                }
+                else if(this_node.attr('class') == 'end'){
+                    jump_page = end_page;
+                }
+                else{
+                    jump_page = this_node.attr('class');
+                }
+
+                var jump_url = '/admin/baokuan/category/' + cat_id + '/?page='+jump_page+'&limit='+limit;
+                get_products(jump_url, cat_id);
+
+            });
+
         });
+    }
+
+    $('#select_category').change(function(){
+        var cat_id = $(this).children('option:selected').val();
+        var url = '/admin/baokuan/category/' + cat_id + '/';
+        get_products(url, cat_id);
     });
 
     $('#form-product .form-actions button').click(function(){

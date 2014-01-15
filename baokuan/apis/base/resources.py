@@ -75,6 +75,12 @@ class UserResource(BaseResource):
     def post_detail(self, request, **kwargs):
         return self.patch_detail(request, **kwargs)
 
+    def dehydrate(self, bundle):
+        for k in bundle.data:
+            if k == 'phone' and bundle.data[k] is None:
+                bundle.data[k] = ''
+        return bundle
+
     def to_json(self, object_user):
         data = {field: getattr(object_user, field) for field in self._meta.fields if getattr(object_user, field)}
         if 'accounts' in data and len(data['accounts']):
@@ -424,7 +430,10 @@ class PaperResource(BaseResource):
         param_dict = request.GET.dict()
         params = dict(param_dict.items() + {'period__lt': today}.items()) \
             if 'period__lt' not in param_dict else param_dict
+        params = param_dict
         papers_url = u'http://{}/api/v1/paper/?{}'.format(request.META['HTTP_HOST'], urlencode(params))
+        earliest_paper = Paper.objects().order_by('period').first()
+        earliest = earliest_paper.period if earliest_paper else None
 
         if not request.user.is_authenticated():
             res = requests.get(papers_url).json()
@@ -444,6 +453,7 @@ class PaperResource(BaseResource):
                 if 'answers' in data:
                     del data['answers']
 
+            res['meta']['earliest'] = earliest
             return self.create_response(request, res)
 
         else:
@@ -478,6 +488,7 @@ class PaperResource(BaseResource):
                 if 'answers' in data:
                     del data['answers']
 
+            res['meta']['earliest'] = earliest
             return self.create_response(request, res)
 
 
@@ -606,7 +617,7 @@ class MarkResource(BaseResource):
             return self.create_response(request, {'error_message': 'not login'}, response_class=HttpUnauthorized)
 
         today = datetime.utcnow().replace(hour=0,minute=0,second=0, microsecond=0)
-        mark = Mark.objects(user=user, period__lt=today).order_by('-period').first()
+        mark = Mark.objects(user=user, is_online=True).order_by('-period').first()
 
         if mark:
             res['rank'] = mark.rank
@@ -664,7 +675,7 @@ class FavoriteCategoryResource(BaseResource):
         success = False
 
         if categories:
-            FavoriteCategory.objects(user=user).update_one(add_to_set__categories=categories, upsert=True)
+            FavoriteCategory.objects(user=user).update_one(set__categories=categories, upsert=True)
             success = True
 
         return self.create_response(request, {'success': success})
