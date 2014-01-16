@@ -59,7 +59,8 @@ def configure_uwsgi():
     with cd('/srv/baokuan'):
         # sudo('export ENV={}'.format(ENV))
         sudo('export PYTHONPATH=/srv/baokuan:$PYTHONPATH')
-        sudo('uwsgi --http :8000 --module baokuan.wsgi --env DJANGO_SETTINGS_MODULE=baokuan.settings')
+        sudo('uwsgi --http :8000 --module baokuan.wsgi:application --env DJANGO_SETTINGS_MODULE=baokuan.settings \
+            --chdir /srv/baokuan')
 
 def configure_nginx():
     puts(green('Configuring Nginx web server'))

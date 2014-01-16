@@ -141,7 +141,7 @@ INSTALLED_APPS = (
     'mongoengine.django.mongo_auth',
     'djcelery',
     'djcelery_email',
-    'baokuan.apis',
+    'apis',
 )
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
