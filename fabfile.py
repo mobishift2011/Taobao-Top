@@ -55,12 +55,12 @@ def configure_mongodb():
     # sudo('service mongodb stop')
     sudo('numactl --interleave=all mongod --dbpath /var/lib/mongodb &')
 
-def configure_uwsgi():
+def configure_server():
     with cd('/srv/baokuan'):
         # sudo('export ENV={}'.format(ENV))
         sudo('export PYTHONPATH=/srv/baokuan:$PYTHONPATH')
-        sudo('uwsgi --http :8000 --module baokuan.wsgi:application --env DJANGO_SETTINGS_MODULE=baokuan.settings \
-            --chdir /srv/baokuan')
+        with cd('baokuan'):
+            sudo('gunicorn_django -w=4')
 
 def configure_nginx():
     puts(green('Configuring Nginx web server'))
@@ -211,8 +211,10 @@ def restart_web_server():
                 run('sudo supervisord -c supervisord.conf -l /tmp/supervisord.log')
 
 def restart():
+    with settings(warn_only=True):
+        sudo('killall gunicorn_django')
     configure_nginx()
-    configure_uwsgi()
+    configure_server()
 
 def deploy():
     """
@@ -225,5 +227,5 @@ def deploy():
     configure_firewall()
     sync_latest_code()
     configure_nginx()
-    configure_uwsgi()
+    configure_server()
     restart_web_server()
