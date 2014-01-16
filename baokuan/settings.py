@@ -14,6 +14,7 @@ if ENV == 'DEV':
     SUB_DOMAIN = None
 
 elif ENV == 'PRODUCTION':
+    print '~~~~~~~~~~~~~~~~~, env:', ENV
     DEBUG = False
     TEMPLATE_DEBUG = DEBUG
     MONGOHOST = '127.0.0.1'
