@@ -417,7 +417,6 @@ class PaperResource(BaseResource):
         today = datetime.utcnow().replace(hour=0,minute=0,second=0, microsecond=0)
         tomorrow = today + timedelta(days=1)
         params = dict(request.GET.dict().items() + {'period__gte': today, 'period__lt': tomorrow}.items())
-        print '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', SUB_DOMAIN or ''
         return redirect(u'{}/api/v1/paper/?{}'.format(SUB_DOMAIN or '', urlencode(params)))
 
     def yesterday(self, request, **kwargs):
