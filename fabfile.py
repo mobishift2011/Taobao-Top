@@ -55,7 +55,7 @@ def configure_mongodb():
     # sudo('service mongodb stop')
     sudo('numactl --interleave=all mongod --dbpath /var/lib/mongodb &')
 
-def configuire_uwsgi():
+def configure_uwsgi():
     with cd('/srv/baokuan'):
         # sudo('export ENV={}'.format(ENV))
         sudo('export PYTHONPATH=$DIR:$PYTHONPATH')
@@ -224,5 +224,5 @@ def deploy():
     configure_firewall()
     sync_latest_code()
     configure_nginx()
-    configuire_uwsgi()
+    configure_uwsgi()
     restart_web_server()
