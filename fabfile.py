@@ -58,7 +58,7 @@ def configure_mongodb():
 def configure_uwsgi():
     with cd('/srv/baokuan'):
         # sudo('export ENV={}'.format(ENV))
-        sudo('export PYTHONPATH=$DIR:$PYTHONPATH')
+        sudo('export PYTHONPATH=/srv/baokuan:$PYTHONPATH')
         sudo('uwsgi --http :8000 --module baokuan.wsgi --env DJANGO_SETTINGS_MODULE=baokuan.settings')
 
 def configure_nginx():
