@@ -6,6 +6,8 @@ APP_NAME = 'baokuan'
 ROOT_PATH = os.path.abspath(os.path.dirname(__file__))
 env = os.getenv('ENV') or 'DEV'
 ENV = env.upper()
+HOST = 'luckytao.tk'
+
 if ENV == 'DEV':
     DEBUG = True
     TEMPLATE_DEBUG = DEBUG
@@ -18,7 +20,7 @@ elif ENV == 'PRODUCTION':
     TEMPLATE_DEBUG = DEBUG
     MONGOHOST = '127.0.0.1'
     BAOKUAN_HOST = 'http://222.73.105.208/'
-    SUB_DOMAIN = '/' + APP_NAME
+    SUB_DOMAIN = 'http://{}/{}'.format(HOST, APP_NAME)
 
 elif ENV == 'TEST':
     DEBUG = True
@@ -45,8 +47,7 @@ MANAGERS = ADMINS
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = [
-    '.luckytao.tk',
-    '.localhost'
+    '.' + HOST,
 ]
 
 # Local time zone for this installation. Choices can be found here:
