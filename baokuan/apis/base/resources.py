@@ -504,7 +504,7 @@ class MarkResource(BaseResource):
         authentication = UserAuthentication()
         authorization = Authorization()
         excludes = ('resource_uri',)
-        filtering = {'user': ALL}
+        filtering = {'user': ALL, 'period': ALL}
         ordering = ('created_at', 'period')
 
     def prepend_urls(self):
@@ -518,10 +518,12 @@ class MarkResource(BaseResource):
         ]
 
     def dehydrate(self, bundle):
-        paper_id = bundle.obj.paper.id
-        deadline = bundle.obj.paper.deadline
+        paper = bundle.obj.paper
+        paper_id = paper.id
+        deadline = paper.deadline
         bundle.data['paper'] = paper_id
         bundle.data['deadline'] = deadline
+        bundle.data['total_marks'] = Mark.objects(paper=paper).count()
         return bundle
 
     def apply(self, request, **kwargs):
@@ -625,6 +627,7 @@ class MarkResource(BaseResource):
             res['bonus'] = mark.bonus
             res['period'] = mark.period
             res['is_get_bonus'] = mark.is_get_bonus
+            res['total_marks'] = Mark.objects(period=mark.period).count()
 
         return self.create_response(request, res)
 

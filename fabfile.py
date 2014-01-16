@@ -27,7 +27,8 @@ def setup_packages():
     sudo('apt-get update')
     sudo('easy_install pip')
     sudo('pip install setuptools --no-use-wheel --upgrade')
-    sudo('apt-get -y install build-essential python-dev libevent-dev libxslt-dev uuid-dev python-setuptools dtach libzmq-dev')
+    sudo('apt-get -y install build-essential python-dev libevent-dev libxslt-dev uuid-dev python-setuptools dtach libzmq-dev numactl')
+    sudo('apt-get install uwsgi')
     package_ensure('nginx')
     package_ensure('git')
     package_ensure('ufw')
@@ -46,11 +47,13 @@ def configure_firewall():
     if ENV == 'PRODUCTION':
         sudo('ufw allow proto tcp from any to any port 22')
         sudo('ufw allow proto tcp from any to any port 80')
+        sudo('ufw allow proto tcp from any to any port 8000')
         sudo('ufw --force enable')
 
 def configure_mongodb():
     puts(green('Configuring MongoDB'))
-    sudo('service mongodb restart')
+    # sudo('service mongodb stop')
+    sudo('numactl --interleave=all mongod --dbpath /var/lib/mongodb &')
 
 def configure_nginx():
     puts(green('Configuring Nginx web server'))
@@ -128,22 +131,28 @@ def configure_nginx():
     |
     |server {
     |    listen   80; ## listen for ipv4; this line is default and implied
-    |    server_name localhost;
+    |    server_name luckytao.tk;
     |    access_log /tmp/baokuan_nginx.log;
     |    error_log /tmp/baokuan_nginx_error.log;
     |    client_max_body_size 5m;
     |
     |    location /static {
     |        autoindex on;
-    |        root /srv/baokuan/baokuan/static;
+    |        root /srv/baokuan/;
     |    }
     |
-    |    location / {
+    |    location /baokuan {
     |        include uwsgi_params;
     |        uwsgi_pass unix:///tmp/baokuan.sock;
     |        uwsgi_param X-Real-IP $remote_addr;
     |        uwsgi_param Host $http_host;
     |    }
+    |
+    |   location / {
+    |       autoindex on;
+    |       root /srv/luckytao;
+    |   }
+    |
     |}
     |
     ''')
@@ -175,23 +184,32 @@ def sync_latest_code():
         else:
             with mode_sudo():
                 sudo('git clone %s src' % GIT_REPO)
-        sudo('cp -r /srv/baokuan/src/baokuan/* /srv/baokuan/')
+        sudo('cp -r /srv/baokuan/src/* /srv/baokuan/')
         # sudo('chmod 777 /srv/baokuan/static/CACHE -R')
     
     with cd('/srv/baokuan/src'):
         puts(green('Installing app denpendencies'))
         sudo('pip install -r requirements.txt -i http://pypi.douban.com/simple')
 
+def restart_web_server():
+    puts(green('Reloading the service'))
+    sudo('/srv/baokuan/manage.sh restart')
+    if ENV == 'PRODUCTION':
+        with settings(warn_only=True):
+            with cd('/srv/baokuan'):
+                run('sudo killall supervisord')
+                run('sleep 0.5')
+                run('sudo supervisord -c supervisord.conf -l /tmp/supervisord.log')
+
 def deploy():
     """
     Setup environments, configure, and start.
     """
-    puts(green('Starting deployment'))
+    # puts(green('Starting deployment'))
     # setup_packages()
-    setup_folders()
+    # setup_folders()
 
     configure_firewall()
-    configure_mongodb()
     sync_latest_code()
-    # configure_nginx()
+    configure_nginx()
     # restart_web_server()
