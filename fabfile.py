@@ -57,10 +57,10 @@ def configure_mongodb():
 
 def configure_server():
     with cd('/srv/baokuan'):
-        # sudo('export ENV={}'.format(ENV))
-        sudo('export PYTHONPATH=/srv/baokuan:$PYTHONPATH')
+        run('export ENV={}'.format(ENV))
+        run('export PYTHONPATH=/srv/baokuan:$PYTHONPATH')
         with cd('baokuan'):
-            sudo('gunicorn_django -w=4')
+            sudo('gunicorn_django -w=4 ')
 
 def configure_nginx():
     puts(green('Configuring Nginx web server'))

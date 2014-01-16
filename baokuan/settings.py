@@ -11,12 +11,14 @@ if ENV == 'DEV':
     TEMPLATE_DEBUG = DEBUG
     MONGOHOST = '127.0.0.1'
     BAOKUAN_HOST = 'http://222.73.105.208/'
+    SUB_DOMAIN = None
 
 elif ENV == 'PRODUCTION':
     DEBUG = False
     TEMPLATE_DEBUG = DEBUG
     MONGOHOST = '127.0.0.1'
     BAOKUAN_HOST = 'http://222.73.105.208/'
+    SUB_DOMAIN = '/' + APP_NAME
 
 elif ENV == 'TEST':
     DEBUG = True
@@ -24,6 +26,7 @@ elif ENV == 'TEST':
     MONGOHOST = '127.0.0.1'
     BAOKUAN_HOST = 'http://222.73.105.208/'
     APP_NAME = 'baokuan_test'
+    SUB_DOMAIN = None
 
 connect(host=MONGOHOST, db=APP_NAME)
 MONGOENGINE_USER_DOCUMENT = 'mongoengine.django.auth.User'

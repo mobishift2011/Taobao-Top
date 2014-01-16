@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
-from settings import SECRET_KEY, EMAIL_HOST_USER, APP_NAME, AUTHENTICATION_BACKENDS
+from settings import SECRET_KEY, EMAIL_HOST_USER, APP_NAME, AUTHENTICATION_BACKENDS, SUB_DOMAIN
 from models import *
 from apis.notification.models import Notification
 from validations import *
@@ -417,13 +417,13 @@ class PaperResource(BaseResource):
         today = datetime.utcnow().replace(hour=0,minute=0,second=0, microsecond=0)
         tomorrow = today + timedelta(days=1)
         params = dict(request.GET.dict().items() + {'period__gte': today, 'period__lt': tomorrow}.items())
-        return redirect(u'/api/v1/paper/?{}'.format(urlencode(params)))
+        return redirect(u'{}/api/v1/paper/?{}'.format(SUB_DOMAIN or '', urlencode(params)))
 
     def yesterday(self, request, **kwargs):
         today = datetime.utcnow().replace(hour=0,minute=0,second=0, microsecond=0)
         yesterday = today - timedelta(days=1)
         params = dict(request.GET.dict().items() + {'period__gte': yesterday, 'period__lt': today}.items())
-        return redirect(u'/api/v1/paper/history/?{}'.format(urlencode(params)))
+        return redirect(u'{}/api/v1/paper/history/?{}'.format(SUB_DOMAIN or '', urlencode(params)))
 
     def history(self, request, **kwargs):
         today = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
@@ -655,7 +655,7 @@ class LotteryResource(BaseResource):
         today = datetime.utcnow().replace(hour=0,minute=0,second=0, microsecond=0)
         yesterday = today - timedelta(days=1)
         params = dict(request.GET.dict().items() + {'period__gte': yesterday, 'period__lt': today}.items())
-        return redirect(u'/api/v1/lottery/?{}'.format(urlencode(params)))
+        return redirect(u'{}/api/v1/lottery/?{}'.format(SUB_DOMAIN or '', urlencode(params)))
 
 
 class FavoriteCategoryResource(BaseResource):
