@@ -55,6 +55,12 @@ def configure_mongodb():
     # sudo('service mongodb stop')
     sudo('numactl --interleave=all mongod --dbpath /var/lib/mongodb &')
 
+def configuire_uwsgi():
+    with cd('/srv/baokuan'):
+        sudo('export ENV='.format(ENV))
+        sudo('export PYTHONPATH=$DIR:$PYTHONPATH')
+        sudo('uwsgi --http :8000 --module baokuan.wsgi --env DJANGO_SETTINGS_MODULE=baokuan.settings')
+
 def configure_nginx():
     puts(green('Configuring Nginx web server'))
     
@@ -142,10 +148,12 @@ def configure_nginx():
     |    }
     |
     |    location /baokuan {
-    |        include uwsgi_params;
-    |        uwsgi_pass unix:///tmp/baokuan.sock;
-    |        uwsgi_param X-Real-IP $remote_addr;
-    |        uwsgi_param Host $http_host;
+    |        #include uwsgi_params;
+    |        #uwsgi_pass 127.0.0.1:8000;
+    |        proxy_pass http://127.0.0.1:8000;
+    |        #uwsgi_pass unix:///tmp/stubbs.sock;
+    |        #uwsgi_param X-Real-IP $remote_addr;
+    |        #uwsgi_param Host $http_host;
     |    }
     |
     |   location / {
@@ -201,15 +209,20 @@ def restart_web_server():
                 run('sleep 0.5')
                 run('sudo supervisord -c supervisord.conf -l /tmp/supervisord.log')
 
+def restart():
+    configure_nginx()
+    configuire_uwsgi()
+
 def deploy():
     """
     Setup environments, configure, and start.
     """
-    # puts(green('Starting deployment'))
-    # setup_packages()
-    # setup_folders()
+    puts(green('Starting deployment'))
+    setup_packages()
+    setup_folders()
 
     configure_firewall()
     sync_latest_code()
     configure_nginx()
-    # restart_web_server()
+    configuire_uwsgi()
+    restart_web_server()
