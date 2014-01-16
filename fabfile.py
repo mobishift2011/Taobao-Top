@@ -184,7 +184,7 @@ def sync_latest_code():
     with cd('/srv/baokuan'):
         if dir_exists('/srv/baokuan/src'):
             with cd('/srv/baokuan/src'):
-                sudo('git reset HEAD --hard && git fetch --all')
+                sudo('git reset HEAD --hard && git fetch --all && git pull')
                 if ENV == 'INTEGRATE':
                     sudo('git checkout dev')
                 else:
@@ -211,7 +211,7 @@ def restart_web_server():
 
 def restart():
     configure_nginx()
-    configuire_uwsgi()
+    configure_uwsgi()
 
 def deploy():
     """
