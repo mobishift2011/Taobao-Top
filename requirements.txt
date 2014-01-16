@@ -11,3 +11,7 @@ APNSWrapper
 jpush>=2.0.1
 Fabric
 cuisine
+gunicorn
+greenlet
+eventlet
+gevent
