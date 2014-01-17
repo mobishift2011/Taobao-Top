@@ -58,8 +58,8 @@ def configure_mongodb():
 def configure_server():
     with cd('/srv/baokuan'):
         run('export ENV={}'.format(ENV))
-        run('export PYTHONPATH=/srv/baokuan:$PYTHONPATH')
         with cd('baokuan'):
+            # sudo('python manage.py collectstatic')
             sudo('gunicorn_django -w=4 ')
 
 def configure_nginx():
@@ -143,9 +143,9 @@ def configure_nginx():
     |    error_log /tmp/baokuan_nginx_error.log;
     |    client_max_body_size 5m;
     |
-    |    location /static {
+    |    location /baokuan/assets {
     |        autoindex on;
-    |        root /srv/baokuan/;
+    |        alias /srv/baokuan/baokuan/static;
     |    }
     |
     |    location /baokuan {
@@ -216,6 +216,10 @@ def restart():
     configure_nginx()
     configure_server()
 
+def init_data():
+    with cd('/srv/baokuan/baokuan/scripts'):
+        sudo('python init_category.py')
+
 def deploy():
     """
     Setup environments, configure, and start.
@@ -228,4 +232,5 @@ def deploy():
     sync_latest_code()
     configure_nginx()
     configure_server()
-    restart_web_server()
+    init_data()
+    restart()

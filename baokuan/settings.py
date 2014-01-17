@@ -47,7 +47,7 @@ MANAGERS = ADMINS
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = [
-    '.' + HOST,
+    '*'
 ]
 
 # Local time zone for this installation. Choices can be found here:
@@ -90,7 +90,7 @@ STATIC_ROOT = ROOT_PATH
 
 # URL prefix for static files.
 # Example: "http://example.com/static/", "http://static.example.com/"
-STATIC_URL = '/assets/'
+STATIC_URL = '/baokuan/assets/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
