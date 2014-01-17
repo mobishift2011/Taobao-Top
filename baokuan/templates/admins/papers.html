@@ -92,7 +92,7 @@
 
         if(confirm('你确认要删除'+quiz_id+'答案产品 '+title+' 吗?')){
             $.ajax({
-                url: '/admin/quiz/'+quiz_id+'/product/'+product_id+'/',
+                url: '/baokuan/admin/quiz/'+quiz_id+'/product/'+product_id+'/',
                 type: 'DELETE',
                 data: {
                     csrfmiddlewaretoken: '{{ csrf_token }}'
@@ -114,7 +114,7 @@
 
         if(confirm('你确认要删除'+paper_id+' 题目 '+title+' 吗?')){
             $.ajax({
-                url: '/admin/paper/'+paper_id+'/quiz/'+quiz_id+'/',
+                url: '/baokuan/admin/paper/'+paper_id+'/quiz/'+quiz_id+'/',
                 type: 'DELETE',
                 data: {
                     csrfmiddlewaretoken: '{{ csrf_token }}'
@@ -134,7 +134,7 @@
 
         if(confirm('你确认要删除题集 '+paper_id+' 吗?')){
             $.ajax({
-                url: '/admin/paper/'+paper_id+'/',
+                url: '/baokuan/admin/paper/'+paper_id+'/',
                 type: 'DELETE',
                 data: {
                     csrfmiddlewaretoken: '{{ csrf_token }}'
