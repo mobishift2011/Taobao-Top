@@ -55,13 +55,13 @@
                                 Delete
                             </a>
                             <div class="row-fluid" style="margin:20px 0;" quiz="{{ quiz.id }}">
-                                <p><strong>选项: <a href="/admin/quiz/{{ quiz.id }}/product/" target="_blank"><i class="icon-plus"></i></a></strong><p>
+                                <p><strong>选项: <a href="/baokuan/admin/quiz/{{ quiz.id }}/product/" target="_blank"><i class="icon-plus"></i></a></strong><p>
                                 {% for product in quiz.products %}
                                 <div class="span4" id="{{ product.id }}" title="{{ product.title }}">
                                     <p><img class="dashboard-avatar" alt="{{ product.tid }}" src="{{ product.images.0 }}"></p>
                                     <a href="{{ product.origin_url }}">{{ product.title }}</a>
                                     <p>RMB: {{ product.price }}</p>
-                                    <a class="btn btn-info" href="/admin/quiz/{{ quiz.id }}/product/{{ product.id }}/">
+                                    <a class="btn btn-info" href="/baokuan/admin/quiz/{{ quiz.id }}/product/{{ product.id }}/">
                                         <i class="icon-edit icon-white"></i>  
                                         Edit                                            
                                     </a>
