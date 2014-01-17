@@ -21,7 +21,6 @@ elif ENV == 'PRODUCTION':
     MONGOHOST = '127.0.0.1'
     BAOKUAN_HOST = 'http://222.73.105.208/'
     SUB_DOMAIN = 'http://{}/{}'.format(HOST, APP_NAME)
-    print '~~~~~~~~~~~~~~~~~~~', SUB_DOMAIN
 
 elif ENV == 'TEST':
     DEBUG = True
