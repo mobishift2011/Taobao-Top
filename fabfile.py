@@ -222,8 +222,8 @@ def restart():
     configure_server()
 
 def init_data():
-    with cd('/srv/baokuan/baokuan/scripts'):
-        sudo('python init_category.py')
+    with cd('/srv/baokuan/db'):
+        sudo('mongorestore categories')
 
 def deploy():
     """
