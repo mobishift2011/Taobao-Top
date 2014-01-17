@@ -275,14 +275,6 @@ def baokuan_by_category(request, cat_id):
     ret = paginate(count=total, page=page, limit=limit)
     ret['products'] = items
     ret['categories'] = category_dict
-    print ret['count']
-    print ret['limit']
-    print ret['current']
-    print ret['pages']
-    print ret['next_offset']
-    print ret['has_previous']
-    print ret['has_next']
-    print ret['total_page']
     return HttpResponse(simplejson.dumps(ret))
 
 
