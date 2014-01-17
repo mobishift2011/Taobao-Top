@@ -148,6 +148,11 @@ def configure_nginx():
     |        alias /srv/baokuan/baokuan/static;
     |    }
     |
+    |    location /assets {
+    |        autoindex on;
+    |        alias /srv/baokuan/baokuan/static;
+    |    }
+    |
     |    location /baokuan {
     |        #include uwsgi_params;
     |        #uwsgi_pass 127.0.0.1:8000;

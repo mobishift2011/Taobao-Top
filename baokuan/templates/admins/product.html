@@ -83,9 +83,9 @@
                 <div class="box-header well" data-original-title>
                     <h2><i class="icon-picture"></i> 爆款</h2>
                     <div class="box-icon">
-                        <a href="#" class="btn btn-setting btn-round"><i class="icon-cog"></i></a>
-                        <a href="#" class="btn btn-minimize btn-round"><i class="icon-chevron-up"></i></a>
-                        <a href="#" class="btn btn-close btn-round"><i class="icon-remove"></i></a>
+                        <a href="javascript:void(0)" class="btn btn-setting btn-round"><i class="icon-cog"></i></a>
+                        <a href="javascript:void(0)" class="btn btn-minimize btn-round"><i class="icon-chevron-up"></i></a>
+                        <a href="javascript:void(0)" class="btn btn-close btn-round"><i class="icon-remove"></i></a>
                     </div>
                 </div>
                 <div class="box-content">
@@ -101,7 +101,7 @@
 
 {% block js %}
     $(function(){
-        var url = "/admin/baokuan/category/";
+        var url = "/baokuan/admin/baokuan/category/";
         $.get(url, function(data){
             categories = JSON.parse(data)['categories'];
             for(var i in categories){
@@ -201,13 +201,13 @@
 
     $('#select_category').change(function(){
         var cat_id = $(this).children('option:selected').val();
-        var url = '/admin/baokuan/category/' + cat_id + '/';
+        var url = '/baokuan/admin/baokuan/category/' + cat_id + '/';
         get_products(url, cat_id);
     });
 
     $('#form-product .form-actions button').click(function(){
         var form_node = $('#form-product');
-        var url = "/admin/quiz/{{ quiz.id }}/product/";
+        var url = "/baokuan/admin/quiz/{{ quiz.id }}/product/";
         $.post(url, form_node.serialize(), function(data){
             res = JSON.parse(data)['success'];
             alert(res);

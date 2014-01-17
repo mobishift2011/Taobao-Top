@@ -2,15 +2,15 @@
 
 {% block breadcrumb %}
 <li>
-    <a href="/admin/">Home</a> <span class="divider">/</span>
+    <a href="/baokuan/admin/">Home</a> <span class="divider">/</span>
 </li>
 <li>
-    <a href="/admin/papers/">题目</a>
+    <a href="/baokuan/admin/papers/">题目</a>
 </li>
 {% endblock %}
 
 {% block content %}
-<form class="form-horizontal" method='post' action={% if paper %}"/admin/paper/{{ paper.id }}/"{% else %}"/admin/paper/"{% endif %}>{% csrf_token %}
+<form class="form-horizontal" method='post' action={% if paper %}"/baokuan/admin/paper/{{ paper.id }}/"{% else %}"/baokuan/admin/paper/"{% endif %}>{% csrf_token %}
     <fieldset>
         <div class="control-group">
             <label class="control-label" for="period">题集日期</label>

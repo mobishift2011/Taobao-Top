@@ -2,15 +2,15 @@
 
 {% block breadcrumb %}
 <li>
-    <a href="/admin/">Home</a> <span class="divider">/</span>
+    <a href="/baokuan/admin/">Home</a> <span class="divider">/</span>
 </li>
 <li>
-    <a href="/admin/paper/{{ paper.id }}/quiz/{{ quiz.id }}">题目</a>
+    <a href="/baokuan/admin/paper/{{ paper.id }}/quiz/{{ quiz.id }}">题目</a>
 </li>
 {% endblock %}
 
 {% block content %}
-<form class="form-horizontal" method='post' action={% if quiz %}"/admin/paper/{{ paper.id }}/quiz/{{ quiz.id }}/"{% else %}"/admin/paper/{{ paper.id }}/quiz/"{% endif %}>{% csrf_token %}
+<form class="form-horizontal" method='post' action={% if quiz %}"/baokuan/admin/paper/{{ paper.id }}/quiz/{{ quiz.id }}/"{% else %}"/baokuan/admin/paper/{{ paper.id }}/quiz/"{% endif %}>{% csrf_token %}
     <fieldset>
         <div class="control-group">
             <label class="control-label" for="title">商品名称</label>

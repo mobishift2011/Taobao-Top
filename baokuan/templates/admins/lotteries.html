@@ -2,10 +2,10 @@
 
 {% block breadcrumb %}
 <li>
-    <a href="/admin/">Home</a> <span class="divider">/</span>
+    <a href="/baokuan/admin/">Home</a> <span class="divider">/</span>
 </li>
 <li>
-    <a href="/admin/lotteries/">领奖</a>
+    <a href="/baokuan/admin/lotteries/">领奖</a>
 </li>
 {% endblock %}
 
@@ -37,7 +37,7 @@
                             <strong>设备:</strong><a href="#">{{ user.device }}</a><br>
                             <strong>第三方账号:</strong>
                             {% for account in user.accounts %}
-                            <a href="#">{{ account.screen_name }} - {{ account.platform }}</a>
+                            <a href="javascript:void(0)">{{ account.screen_name }} - {{ account.platform }}</a>
                             {% endfor %}
                             <br>
                             <a pid={{ lottery.paper.id }} uid={{ user.id }} class="mark"><i class="icon-question-sign"></i></a>
@@ -61,7 +61,7 @@
         var parent = this_node.parent()
         var paper_id = $(this).attr('pid');
         var user_id = $(this).attr('uid');
-        var url = '/admin/mark/?user_id='+user_id+'&paper_id='+paper_id;
+        var url = '/baokuan/admin/mark/?user_id='+user_id+'&paper_id='+paper_id;
         $.get(url, function(data){
             data = JSON.parse(data);
             user_info = '<table class="table table-striped table-bordered">';
@@ -108,7 +108,7 @@
             $('#lottery_done_'+data.id).click(function(){
                 var tr_node = $(this).parent().parent();
                 var mark_id = tr_node.attr('id');
-                var url = '/admin/mark/';
+                var url = '/baokuan/admin/mark/';
                 $.post(url, {'mark_id': mark_id}, function(data){
                     var node = tr_node.children(".bonus_status").children('span');
                     if(data=='0'){
@@ -128,7 +128,7 @@
             $('#lottery_undo_'+data.id).click(function(){
                 var tr_node = $(this).parent().parent();
                 var mark_id = tr_node.attr('id');
-                var url = '/admin/mark/?mark_id='+mark_id
+                var url = '/baokuan/admin/mark/?mark_id='+mark_id
                 $.ajax({
                     type: "DELETE",
                     url: url

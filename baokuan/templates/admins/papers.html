@@ -2,31 +2,31 @@
 
 {% block breadcrumb %}
 <li>
-    <a href="/admin/">Home</a> <span class="divider">/</span>
+    <a href="/baokuan/admin/">Home</a> <span class="divider">/</span>
 </li>
 <li>
-    <a href="/admin/papers/">题目</a>
+    <a href="/baokuan/admin/papers/">题目</a>
 </li>
 {% endblock %}
 
 {% block content %}
-    <a href="/admin/paper/" target="_blank">添加题集<i class="icon-plus"></i></a>
+    <a href="/baokuan/admin/paper/" target="_blank">添加题集<i class="icon-plus"></i></a>
     {% for paper in papers %}
     <div class="row-fluid sortable" id="{{ paper.id }}">
         <div class="box span12">
             <div class="box-header well" data-original-title>
                 <h2><i class="icon-list-alt"></i> {{ paper.period|date:"Y-m-d"}}</h2>
                 <div class="box-icon">
-                    <a href="#" class="btn btn-minimize btn-round"><i class="icon-chevron-up"></i></a>
-                    <a href="#" class="btn btn-close btn-round"><i class="icon-remove"></i></a>
+                    <a href="javascirpt:void(0)" class="btn btn-minimize btn-round"><i class="icon-chevron-up"></i></a>
+                    <a href="javascirpt:void(0)" class="btn btn-close btn-round"><i class="icon-remove"></i></a>
                 </div>
             </div>
             <div class="box-content">
-                <a class="btn btn-info" href="/admin/paper/{{ paper.id }}/">
+                <a class="btn btn-info" href="/baokuan/admin/paper/{{ paper.id }}/">
                     <i class="icon-edit icon-white"></i>
                     Edit                                            
                 </a>
-                <a class="btn btn-danger paper_delete" href="#">
+                <a class="btn btn-danger paper_delete">
                     <i class="icon-trash icon-white"></i> 
                     Delete
                 </a>
@@ -35,22 +35,22 @@
                         <h2> 奖金<small style="margin-left: 5px;">RMB {{ paper.bonus }}</small></h2>
                         <h2> 领奖截止<small style="margin-left: 5px;">{{ paper.deadline|date:'Y-m-d' }}</small></h2>
                         <h2> 上线<small style="margin-left: 5px;">{% if paper.is_online %}是{% else %}否{% endif %}</small></h2>
-                        <a href="/admin/paper/{{ paper.id }}/quiz/" target="_blank">添加题目<i class="icon-plus"></i></a>
+                        <a href="/baokuan/admin/paper/{{ paper.id }}/quiz/" target="_blank">添加题目<i class="icon-plus"></i></a>
                     </div>
                     <ul class="dashboard-list" paper="{{ paper.id }}">
                         {% for quiz in paper.quizes %}
                         <li id="{{ quiz.id }}" title="{{ quiz.title }}">
-                            <a href="#">
+                            <a href="javascirpt:void(0)">
                                 <img class="dashboard-avatar" alt="{{ quiz.title }}" src="{{ quiz.images.0 }}">
                             </a>
-                            <strong>题目名:</strong> <a href="#">{{ quiz.title }}</a><br>
+                            <strong>题目名:</strong> <a href="javascirpt:void(0)">{{ quiz.title }}</a><br>
                             <strong>分类:</strong> {% for category in quiz.categories %}{{ category }}{% endfor %}<br>
                             <strong>描述:</strong> {{ quiz.description }}
-                            <a class="btn btn-info" href="/admin/paper/{{ paper.id }}/quiz/{{ quiz.id }}/">
+                            <a class="btn btn-info" href="/baokuan/admin/paper/{{ paper.id }}/quiz/{{ quiz.id }}/">
                                 <i class="icon-edit icon-white"></i>  
                                 Edit                                            
                             </a>
-                            <a class="btn btn-danger quiz_delete" href="#">
+                            <a class="btn btn-danger quiz_delete">
                                 <i class="icon-trash icon-white"></i> 
                                 Delete
                             </a>
@@ -65,7 +65,7 @@
                                         <i class="icon-edit icon-white"></i>  
                                         Edit                                            
                                     </a>
-                                    <a class="btn btn-danger product_delete" href="#">
+                                    <a class="btn btn-danger product_delete" href="javascript:void(0)">
                                         <i class="icon-trash icon-white"></i> 
                                         Delete
                                     </a>

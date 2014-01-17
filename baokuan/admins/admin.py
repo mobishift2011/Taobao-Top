@@ -33,7 +33,10 @@ def http_basic_auth(func):
             auth = auth.strip().decode('base64')
             username, password = auth.split(':',1)
             if username == 'favbuy' and password == 'favbuy0208':
-                return func(request, *args, **kwargs)
+                try:
+                    return func(request, *args, **kwargs)
+                except TypeError:
+                    return func(request)
             
             return unauthed()
 
