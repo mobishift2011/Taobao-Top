@@ -13,7 +13,7 @@
 {% endblock %}
 
 {% block content %}
-<form id="form-product" class="form-horizontal" {% if product %}method="POST" action="/admin/quiz/{{ quiz.id }}/product/{{ product.id }}/"{% endif %}>{% csrf_token %}
+<form id="form-product" class="form-horizontal" {% if product %}method="POST" action="/baokuan/admin/quiz/{{ quiz.id }}/product/{{ product.id }}/"{% endif %}>{% csrf_token %}
     <fieldset>
         <div class="control-group">
             <label class="control-label" for="tid">淘宝商品id</label>
@@ -191,7 +191,7 @@
                     jump_page = this_node.attr('class');
                 }
 
-                var jump_url = '/admin/baokuan/category/' + cat_id + '/?page='+jump_page+'&limit='+limit;
+                var jump_url = '/baokuan/admin/baokuan/category/' + cat_id + '/?page='+jump_page+'&limit='+limit;
                 get_products(jump_url, cat_id);
 
             });
