@@ -261,7 +261,7 @@ count = 0
 cc = 0
 for values in sub_cats:
     for value in values:
-        if value not in cat_dict:
+        if value not in category_dict:
             print value
             cc += 1
         count +=1
