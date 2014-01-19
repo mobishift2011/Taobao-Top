@@ -216,10 +216,16 @@ def restart_web_server():
                 run('sudo supervisord -c supervisord.conf -l /tmp/supervisord.log')
 
 def restart():
+    puts(green('Restarting the service'))
     with settings(warn_only=True):
         sudo('killall gunicorn_django')
-    configure_nginx()
-    configure_server()
+        with cd('/srv/baokuan'):
+            sudo('sudo killall supervisord')
+            sudo('sleep 0.5')
+            sudo('supervisord -c supervisord.conf -l /tmp/supervisord.log')
+
+    # configure_nginx()
+    # configure_server()
 
 def init_data():
     with cd('/srv/baokuan/db'):
