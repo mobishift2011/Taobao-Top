@@ -105,7 +105,7 @@ class Mark(Document):
     created_at = DateTimeField(default=datetime.utcnow())
 
     meta = {
-        'indexes': [('user', 'paper'), 'created_at', 'period', 'is_online']
+        'indexes': [('user', 'paper'), ('paper', 'rank'), 'created_at', 'period', 'is_online']
     }
 
 

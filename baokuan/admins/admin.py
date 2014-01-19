@@ -8,6 +8,7 @@ from django.conf import settings
 from apis.base.models import *
 from functools import wraps
 from datetime import datetime, timedelta
+from .categories import cats
 
 import pymongo
 import requests
@@ -252,7 +253,19 @@ def quizProdHandle(request, quiz_id, product_id):
 
 client = pymongo.MongoClient(host=settings.MONGOHOST)
 db = client[settings.APP_NAME]
-category_dict = {cat['cid']: cat['name'] for cat in db.categories.find({'$or':[{'level':1}, {'level':2}]})}
+# category_dict = {cat['cid']: cat['name'] for cat in db.categories.find({'$or':[{'level':1}, {'level':2}]})}
+category_dict = {cat['name']: cat['cid'] for cat in db.categories.find()}
+
+sub_cats = cats.values()
+count = 0
+cc = 0
+for values in sub_cats:
+    for value in values:
+        if value not in cat_dict:
+            print value
+            cc += 1
+        count +=1
+print count, cc
 
 @http_basic_auth
 def baokuan_by_category(request, cat_id):
