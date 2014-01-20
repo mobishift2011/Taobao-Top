@@ -28,6 +28,12 @@
             </div>
         </div>
         <div class="control-group">
+            <label class="control-label" for="categories">商品类别</label>
+            <div class="controls">
+                <input class="input-xlarge focused" id="focusedInput" type="text" name="categories" value="{{ product.categories.0 }}">
+            </div>
+        </div>
+        <div class="control-group">
             <label class="control-label" for="description">商品描述</label>
             <div class="controls">
                 <div class="textarea">
@@ -76,6 +82,8 @@
             <div class="controls">
             <select id="select_category">
             </select>
+            <select id="select_sub_category">
+            </select>
             </div>
         </div>
         <div class="row-fluid">
@@ -105,8 +113,22 @@
         $.get(url, function(data){
             categories = JSON.parse(data)['categories'];
             for(var i in categories){
-                $('#select_category').append('<option value="'+i+'">'+categories[i]+'</option>')
+                $('#select_category').append('<option value="'+i+'">'+i+'</option>');
+                for(var j in categories[i]){
+                    $('#select_sub_category').append('<option value="'+categories[i][j]+'">'+j+'</option>');
+                }
             }
+
+            $('#select_category').change(function(){
+                var cat_node = $('#select_category');
+                var cat = cat_node.val();
+                var sub_cat_node = $('#select_sub_category');
+                sub_cat_node.empty();
+                for(var subcat in categories[cat]){
+                    sub_cat_node.append('<option value="'+categories[cat][subcat]+'">'+subcat+'</option>');
+                }
+            });
+
         });
     });
 
@@ -131,11 +153,13 @@
                 var title = node.attr('title');
                 var price = node.children('p.price:first').attr('value');
                 var images = node.children('a').children('img:first').attr('src');
+                var categories = $('#select_category').val()
 
                 $('#form-product input[name$="tid"]').val(tid);
                 $('#form-product input[name$="title"]').val(title);
                 $('#form-product input[name$="price"]').val(price);
                 $('#form-product input[name$="images"]').val(images);
+                $('#form-product input[name$="categories"]').val(categories);
                 $('#form-product input[name$="origin_url"]').val('http://detail.tmall.com/item.htm?id='+tid);
             });
 
@@ -199,7 +223,7 @@
         });
     }
 
-    $('#select_category').change(function(){
+    $('#select_sub_category').change(function(){
         var cat_id = $(this).children('option:selected').val();
         var url = '/baokuan/admin/baokuan/category/' + cat_id + '/';
         get_products(url, cat_id);

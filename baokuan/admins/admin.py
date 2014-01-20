@@ -206,7 +206,7 @@ def quizProdsHandle(request, quiz_id):
         for k,v in request.POST.iteritems():
             if k == 'price':
                 v = float(v)
-            elif k == 'images':
+            elif k == 'images' or k == 'categories':
                 v = [v]
             setattr(product, k, v)
 
@@ -254,8 +254,7 @@ def quizProdHandle(request, quiz_id, product_id):
 client = pymongo.MongoClient(host=settings.MONGOHOST)
 db = client[settings.APP_NAME]
 # category_dict = {cat['cid']: cat['name'] for cat in db.categories.find({'$or':[{'level':1}, {'level':2}]})}
-# category_dict = {cat['name']: cat['cid'] for cat in db.categories.find()}
-category_dict = {cat['cid']: cat['name'] for cat in db.categories.find()}
+category_dict = {cat['name']: cat['cid'] for cat in db.categories.find()}
 
 sub_cats = cats.values()
 count = 0
@@ -264,8 +263,15 @@ for values in sub_cats:
     for value in values:
         if value not in category_dict:
             cc += 1
-        count +=1
+        count += 1
 print count, cc
+
+com_cats = {}
+for k,vs in cats.iteritems():
+    com_cats.setdefault(k, {})
+    for v in vs:
+        com_cats[k][v] = category_dict[v]
+
 
 @http_basic_auth
 def baokuan_by_category(request, cat_id):
@@ -279,7 +285,7 @@ def baokuan_by_category(request, cat_id):
     if json_data is None:
         ret = {}
         ret['products'] = []
-        ret['categories'] = category_dict
+        ret['categories'] = com_cats
         return HttpResponse(simplejson.dumps())
 
     items = json_data.get('items', [])
@@ -287,13 +293,13 @@ def baokuan_by_category(request, cat_id):
 
     ret = paginate(count=total, page=page, limit=limit)
     ret['products'] = items
-    ret['categories'] = category_dict
+    ret['categories'] = com_cats
     return HttpResponse(simplejson.dumps(ret))
 
 
 @http_basic_auth
 def categories(request):
-    return HttpResponse(simplejson.dumps({'categories': category_dict}))
+    return HttpResponse(simplejson.dumps({'categories': com_cats}))
 
 
 @http_basic_auth

@@ -62,8 +62,6 @@ def configure_mongodb():
 
 def configure_server():
     with cd('/srv/baokuan'):
-        sudo('export ENV={}'.format(ENV))
-        sudo('export C_FORCE_ROOT="true"')
         with cd('baokuan'):
             # sudo('python manage.py collectstatic')
             sudo('gunicorn_django -w=4 ')
@@ -228,7 +226,8 @@ def restart():
         with cd('/srv/baokuan'):
             sudo('sudo killall supervisord')
             sudo('sleep 0.5')
-            sudo('supervisord -c supervisord.conf -l /tmp/supervisord.log')
+            sudo('export ENV={} && export C_FORCE_ROOT="true" && \
+                supervisord -c supervisord.conf -l /tmp/supervisord.log'.format(ENV))
 
     # configure_nginx()
     # configure_server()
