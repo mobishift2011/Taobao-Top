@@ -1,5 +1,6 @@
 django
 django-tastypie-mongoengine
+redis
 celery
 django-celery
 django-celery-email

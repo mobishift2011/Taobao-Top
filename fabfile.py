@@ -32,8 +32,12 @@ def setup_packages():
     package_ensure('nginx')
     package_ensure('git')
     package_ensure('ufw')
+    package_ensure('redis-server')
 
     # setup_celery()
+
+def configure_redis():
+    package_ensure('redis-server')
 
 def setup_folders():
     puts(green('Setting up on-disk folders'))
@@ -58,7 +62,8 @@ def configure_mongodb():
 
 def configure_server():
     with cd('/srv/baokuan'):
-        run('export ENV={}'.format(ENV))
+        sudo('export ENV={}'.format(ENV))
+        sudo('export C_FORCE_ROOT="true"')
         with cd('baokuan'):
             # sudo('python manage.py collectstatic')
             sudo('gunicorn_django -w=4 ')
