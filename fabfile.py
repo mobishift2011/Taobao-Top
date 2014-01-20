@@ -48,6 +48,7 @@ def configure_firewall():
         sudo('ufw allow proto tcp from any to any port 22')
         sudo('ufw allow proto tcp from any to any port 80')
         sudo('ufw allow proto tcp from any to any port 8000')
+        sudo('ufw allow proto tcp from any to any port 9001')
         sudo('ufw --force enable')
 
 def configure_mongodb():
