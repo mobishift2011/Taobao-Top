@@ -164,4 +164,5 @@ EMAIL_USE_TLS = True
 CELERY_EMAIL_TASK_CONFIG = {
     'queue' : 'email',
     # 'rate_limit' : '50/m',
+    'ignore_result': True,
 }

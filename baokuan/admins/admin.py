@@ -254,7 +254,8 @@ def quizProdHandle(request, quiz_id, product_id):
 client = pymongo.MongoClient(host=settings.MONGOHOST)
 db = client[settings.APP_NAME]
 # category_dict = {cat['cid']: cat['name'] for cat in db.categories.find({'$or':[{'level':1}, {'level':2}]})}
-category_dict = {cat['name']: cat['cid'] for cat in db.categories.find()}
+# category_dict = {cat['name']: cat['cid'] for cat in db.categories.find()}
+category_dict = {cat['cid']: cat['name'] for cat in db.categories.find()}
 
 sub_cats = cats.values()
 count = 0
