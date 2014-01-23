@@ -84,6 +84,8 @@
             </select>
             <select id="select_sub_category">
             </select>
+            <select id="select_third_category">
+            </select>
             </div>
         </div>
         <div class="row-fluid">
@@ -114,23 +116,48 @@
             categories = JSON.parse(data)['categories'];
             for(var i in categories){
                 $('#select_category').append('<option value="'+i+'">'+i+'</option>');
-                for(var j in categories[i]){
-                    $('#select_sub_category').append('<option value="'+categories[i][j]+'">'+j+'</option>');
-                }
             }
-
+            
             $('#select_category').change(function(){
                 var cat_node = $('#select_category');
                 var cat = cat_node.val();
                 var sub_cat_node = $('#select_sub_category');
                 sub_cat_node.empty();
                 for(var subcat in categories[cat]){
-                    sub_cat_node.append('<option value="'+categories[cat][subcat]+'">'+subcat+'</option>');
+                    sub_cat_node.append('<option value="'+subcat+'">'+subcat+'</option>');
                 }
+
+                trigger_third_cat_change(categories);
             });
+
+            $('#select_sub_category').change(function(){
+                trigger_third_cat_change(categories);
+            });
+
 
         });
     });
+
+    function trigger_third_cat_change(categories){
+        var cat_node = $('#select_category');
+        var cat = cat_node.val();
+        var sub_cat_node = $('#select_sub_category');
+        var subcat = sub_cat_node.val();
+        var third_cat_node = $('#select_third_category');
+        third_cat_node.empty();
+
+        if(isNaN(categories[cat][subcat])){
+            for(var thirdcat in categories[cat][subcat]){
+                third_cat_node.append('<option value="'+categories[cat][subcat][thirdcat]+'">'+thirdcat+'</option>');
+            }
+            return;
+        }
+
+        var cat_id = categories[cat][subcat];
+        var url = '/baokuan/admin/baokuan/category/' + cat_id + '/';
+        get_products(url, cat_id);
+
+    }
 
     function get_products(url, cat_id){
         $.get(url, function(res){
@@ -223,7 +250,7 @@
         });
     }
 
-    $('#select_sub_category').change(function(){
+    $('#select_third_category').change(function(){
         var cat_id = $(this).children('option:selected').val();
         var url = '/baokuan/admin/baokuan/category/' + cat_id + '/';
         get_products(url, cat_id);

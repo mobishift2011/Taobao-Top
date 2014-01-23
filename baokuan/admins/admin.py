@@ -267,16 +267,22 @@ for values in sub_cats:
 print count, cc
 
 com_cats = {}
-for k,vs in cats.iteritems():
+for k, vs in cats.iteritems():
     com_cats.setdefault(k, {})
     for v in vs:
-        com_cats[k][v] = category_dict[v]
+        com_cats[k].setdefault(v, {})
+        results = db.categories.find({'parent_cid': category_dict[v]})
+        if results.count():
+            for cat in results:
+                com_cats[k][v][cat['name']] = cat['cid']
+        else:
+            com_cats[k][v] = category_dict[v]
 
 
 @http_basic_auth
 def baokuan_by_category(request, cat_id):
     page = int(request.GET.get('page', 1))
-    limit = int(request.GET.get('limit', 10))
+    limit = int(request.GET.get('limit', 30))
 
     url = u'{}/api/v1/cate/hotproducts_list/?cid={}&format=json&page={}&limit={}'.format( \
         settings.BAOKUAN_HOST, cat_id, page, limit)
