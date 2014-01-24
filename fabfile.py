@@ -222,7 +222,6 @@ def restart_web_server():
 def restart():
     puts(green('Restarting the service'))
     with settings(warn_only=True):
-        sudo('killall gunicorn_django')
         with cd('/srv/baokuan'):
             sudo('sudo killall supervisord')
             sudo('sleep 2')
