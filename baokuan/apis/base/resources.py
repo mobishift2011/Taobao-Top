@@ -12,7 +12,7 @@ from django.core import signing
 from django.core.urlresolvers import reverse
 from django.core.mail import EmailMultiAlternatives
 from django.template import loader, Context
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 
 from mongoengine import Q
 from tastypie_mongoengine import resources, fields
@@ -316,6 +316,7 @@ class UserResource(BaseResource):
                 set__token = token,
                 set__generated_at = datetime.utcnow(),
                 set__expires = 10,
+                set__validated = False,
                 upsert = True
             )
 
@@ -332,42 +333,58 @@ class UserResource(BaseResource):
             raise
 
     def reset_password(self, request, **kwargs):
-        if request.method == 'GET':
-            user_id = kwargs.get('user_id')
-            token = request.GET.get('token')
-            user = User.objects.get(id=user_id)
-            prt = PwdRstToken.objects(user=user, token=token).order_by('-generated_at').first()
+        user_id = kwargs.get('user_id')
+        token = request.GET.get('token')
+        user = User.objects.get(id=user_id)
+        prt = PwdRstToken.objects(user=user, token=token).order_by('-generated_at').first()
 
+        if request.method == 'GET':
             if prt is None:
                 return HttpResponse(u'此链接不存在，用户不合法')
             elif (prt.generated_at + timedelta(minutes=prt.expires)) < datetime.utcnow():
                 return HttpResponse(u'链接已过期')
 
-            user.backend = AUTHENTICATION_BACKENDS[0]
-            login(request, user)
-            return HttpResponse(u'user_id: {}, token: {}'.format(user_id, token))
+            return render(request, 'rstpwd.html', {
+                'username': user.username,
+                'user_id': user.id,
+                'token': token,
+            })
 
         elif request.method == 'POST':
-            user = request.user
             password = request.POST.get('password')
             confirm_password = request.POST.get('confirm_password')
             invalid_message = ''
 
-            if not user.is_authenticated():
-                invalid_message = u'用户不合法'
+            if prt is None or \
+                (prt.generated_at + timedelta(minutes=prt.expires)) < datetime.utcnow():
+                    invalid_message = u'此密码修改已经失效，请重新申请忘记密码'
 
-            elif password is None or confirm_password is None:
+            if prt.validated:
+                invalid_message = u'已修改过密码'
+
+            elif not password or not confirm_password:
                 invalid_message = u'密码不得为空'
 
             elif password != confirm_password:
                 invalid_message = u'新密码与确认密码不一致'
 
-            if not self.validate_password(password):
+            elif not self.validate_password(password):
                 invalid_message = u'密码应该在6-20 位'
 
-            user.set_password(password)
-            user.save()
-            return
+            if invalid_message:
+                return render(request, 'rstpwd.html', {
+                    'invalid_message': invalid_message,
+                    'username': user.username,
+                    'user_id': user.id,
+                    'token': token,
+                })
+
+            else:
+                user.set_password(password)
+                prt.validated = True
+                user.save()
+                prt.save()
+                return HttpResponse('修改成功')
 
 
 class ProductResource(BaseResource):

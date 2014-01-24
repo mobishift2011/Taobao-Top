@@ -44,7 +44,8 @@ class PwdRstToken(Document):
     user = ReferenceField(User, required=True)
     token = StringField(required=True)
     generated_at = DateTimeField(required=True)
-    expires = IntField(default=10) # Cell is minute.
+    expires = IntField(default=30) # Cell is minute.
+    validated = BooleanField(default=False)
 
     meta = {
         'indexes': ['user']

@@ -149,6 +149,7 @@ INSTALLED_APPS = (
     'djcelery',
     'djcelery_email',
     'apis',
+    'cron',
 )
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
@@ -159,10 +160,33 @@ EMAIL_HOST_USER = 'no-reply@favbuy.com'
 EMAIL_HOST_PASSWORD = 'tempfavbuy88'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-# EMAIL_BACKEND = 'djcelery_email.backends.CeleryEmailBackend'
+EMAIL_BACKEND = 'djcelery_email.backends.CeleryEmailBackend'
 
 CELERY_EMAIL_TASK_CONFIG = {
     'queue' : 'email',
     # 'rate_limit' : '50/m',
     'ignore_result': True,
+}
+
+from celery.schedules import crontab
+
+BROKER_URL = 'redis://'
+
+CELERYBEAT_SCHEDULE = {
+    'score_rank': {
+        'task': 'tasks.score_and_rank',
+        'schedule': crontab(minute=0, hour=0)
+    },
+    'paper_online': {
+        'task': 'tasks.score_and_rank',
+        'schedule': crontab(minute=0, hour=0)
+    },
+    'lottery_online': {
+        'task': 'tasks.score_and_rank',
+        'schedule': crontab(minute=0, hour=0)
+    },
+    'notification': {
+        'task': 'tasks.score_and_rank',
+        'schedule': crontab(minute=0, hour=0)
+    },
 }

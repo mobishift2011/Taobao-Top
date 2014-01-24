@@ -5,7 +5,7 @@ from apis.notification.models import Notification
 from datetime import datetime, timedelta
 import traceback
 
-def main(period=None):
+def notify(period=None):
     if period:
         today = datetime.strptime(period, '%Y-%m-%d')
     else:
@@ -27,7 +27,7 @@ def main(period=None):
                 continue
 
             message = '您在幸运猜爆款第{}期中的总分为{}分，排名第{}名，可获得话费{}元。赶紧去看看吧~'.format( \
-                mark.period.date(), mark.score, mark.rank, mark.bonus) if mark.user in lottery.user else \
+                mark.period.date(), mark.score, mark.rank, mark.bonus) if mark.user in lottery.users else \
                     '您在幸运猜爆款第{}期中的总分为{}分，排名第{}名。赶紧去看看吧~'.format( \
                         mark.period.date(), mark.score, mark.rank)
 
@@ -43,5 +43,5 @@ if __name__ == '__main__':
     import time, sys
     start_at = time.time()
     period = sys.argv[1] if len(sys.argv) > 1 else None
-    main(period)
+    notify(period)
     print u'Totally cost: {} s'.format(time.time()-start_at)
