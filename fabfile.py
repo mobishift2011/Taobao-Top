@@ -224,7 +224,7 @@ def restart():
     with settings(warn_only=True):
         with cd('/srv/baokuan'):
             sudo('sudo killall supervisord')
-            sudo('sleep 2')
+            sudo('sleep 3')
             sudo('export ENV={} && export PYTHONPATH=/srv/baokuan:/srv/baokuan/baokuan/:$PYTHONPATH && \
                 supervisord -c supervisord.conf -l /tmp/supervisord.log'.format(ENV))
 
