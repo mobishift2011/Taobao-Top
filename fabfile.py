@@ -226,7 +226,7 @@ def restart():
             sudo('sudo killall supervisord')
             sudo('sleep 3')
             sudo('export ENV={} && export PYTHONPATH=/srv/baokuan:/srv/baokuan/baokuan/:$PYTHONPATH && \
-                supervisord -c supervisord.conf -l /tmp/supervisord.log'.format(ENV))
+                export C_FORCE_ROOT="true" && supervisord -c supervisord.conf -l /tmp/supervisord.log'.format(ENV))
 
     # configure_nginx()
     # configure_server()
