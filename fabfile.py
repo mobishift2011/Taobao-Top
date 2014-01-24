@@ -225,8 +225,8 @@ def restart():
         sudo('killall gunicorn_django')
         with cd('/srv/baokuan'):
             sudo('sudo killall supervisord')
-            sudo('sleep 1')
-            sudo('export ENV={} && export C_FORCE_ROOT="true" && \
+            sudo('sleep 2')
+            sudo('export ENV={} && export PYTHONPATH=/srv/baokuan:/srv/baokuan/baokuan/:$PYTHONPATH && \
                 supervisord -c supervisord.conf -l /tmp/supervisord.log'.format(ENV))
 
     # configure_nginx()
