@@ -54,7 +54,7 @@ ALLOWED_HOSTS = [
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
 # In a Windows environment this must be set to your system time zone.
-TIME_ZONE = 'America/Chicago'
+TIME_ZONE = 'Asia/Shanghai'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -174,19 +174,19 @@ BROKER_URL = 'redis://'
 
 CELERYBEAT_SCHEDULE = {
     'score_rank': {
-        'task': 'tasks.score_and_rank',
-        'schedule': crontab(minute=0, hour=0)
+        'task': 'cron.tasks.score_and_rank',
+        'schedule': crontab(minute=55, hour=14)
     },
     'paper_online': {
-        'task': 'tasks.score_and_rank',
-        'schedule': crontab(minute=0, hour=0)
+        'task': 'cron.tasks.paper_online',
+        'schedule': crontab(minute=55, hour=14)
     },
     'lottery_online': {
-        'task': 'tasks.score_and_rank',
-        'schedule': crontab(minute=0, hour=0)
+        'task': 'cron.tasks.lottery_online',
+        'schedule': crontab(minute=55, hour=14)
     },
     'notification': {
-        'task': 'tasks.score_and_rank',
-        'schedule': crontab(minute=0, hour=0)
+        'task': 'cron.tasks.notification',
+        'schedule': crontab(minute=55, hour=14)
     },
 }
