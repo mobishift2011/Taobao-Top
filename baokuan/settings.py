@@ -149,7 +149,7 @@ INSTALLED_APPS = (
     'djcelery',
     'djcelery_email',
     'apis',
-    'cron',
+    # 'cron',
 )
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'

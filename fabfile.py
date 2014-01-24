@@ -225,7 +225,7 @@ def restart():
         sudo('killall gunicorn_django')
         with cd('/srv/baokuan'):
             sudo('sudo killall supervisord')
-            sudo('sleep 0.5')
+            sudo('sleep 1')
             sudo('export ENV={} && export C_FORCE_ROOT="true" && \
                 supervisord -c supervisord.conf -l /tmp/supervisord.log'.format(ENV))
 
