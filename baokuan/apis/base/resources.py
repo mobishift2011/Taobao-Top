@@ -323,7 +323,7 @@ class UserResource(BaseResource):
             if DEBUG:
                 link = reverse('api_reset_password', kwargs={'resource_name': self._meta.resource_name, 'api_name': 'v1', 'user_id': user.id})
             else:
-                link = u'http://{}/{}api/v1/user/{}/rstpwd/'.format(HOST, APP_NAME, user.id)
+                link = u'http://{}/{}/api/v1/user/{}/rstpwd/'.format(HOST, APP_NAME, user.id)
             url = u'{}?token={}&format=json'.format(request.build_absolute_uri(link), token)
             c = Context({'user': user,  'APP_NAME': APP_NAME, 'url': url})
             html_content = loader.get_template('fgtpwd.html').render(c)
