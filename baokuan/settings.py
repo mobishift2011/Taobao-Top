@@ -175,11 +175,11 @@ BROKER_URL = 'redis://'
 CELERYBEAT_SCHEDULE = {
     'score_rank': {
         'task': 'cron.tasks.score_and_rank',
-        'schedule': crontab(minute=05, hour=11)
+        'schedule': crontab(minute=06, hour=11)
     },
     'paper_online': {
         'task': 'cron.tasks.paper_online',
-        'schedule': crontab(minute=29, hour=16)
+        'schedule': crontab(minute=15, hour=11)
     },
     'lottery_online': {
         'task': 'cron.tasks.lottery_online',
