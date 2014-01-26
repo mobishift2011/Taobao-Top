@@ -179,7 +179,7 @@ CELERYBEAT_SCHEDULE = {
     },
     'paper_online': {
         'task': 'cron.tasks.paper_online',
-        'schedule': crontab(minute=15, hour=11)
+        'schedule': crontab(minute=43, hour=11)
     },
     'lottery_online': {
         'task': 'cron.tasks.lottery_online',
