@@ -9,7 +9,7 @@ def notify(period=None):
     if period:
         today = datetime.strptime(period, '%Y-%m-%d')
     else:
-        now = datetime.utcnow()
+        now = datetime.now()
         today = now.replace(hour=0,minute=0,second=0, microsecond=0)
     yesterday = today - timedelta(days=1)
     lotteries = Lottery.objects(period__gte=yesterday, period__lt=today)

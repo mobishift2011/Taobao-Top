@@ -8,7 +8,7 @@ def push_online(period=None):
     if period:
         today = datetime.strptime(period, '%Y-%m-%d')
     else:
-        now = datetime.utcnow()
+        now = datetime.now()
         today = now.replace(hour=0,minute=0,second=0, microsecond=0)
     tomorrow = today + timedelta(days=1)
     Paper.objects(period__gte=today, period__lt=tomorrow).update(set__is_online=True)
