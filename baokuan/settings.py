@@ -189,8 +189,8 @@ CELERYBEAT_SCHEDULE = {
         'task': 'cron.tasks.notification',
         'schedule': crontab(minute=0, hour=9)
     },
-    'notification_temp': {
-        'task': 'cron.tasks.notification_temp',
-        'schedule': crontab(minute=0, hour=8, day_of_month='1-7, 29, 30, 31', month_of_year='1, 2')
-    },
+    # 'notification_temp': {
+    #     'task': 'cron.tasks.notification_temp',
+    #     'schedule': crontab(minute=0, hour=8, day_of_month='1-7, 29, 30, 31', month_of_year='1, 2')
+    # },
 }
