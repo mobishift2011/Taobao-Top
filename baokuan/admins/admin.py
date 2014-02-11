@@ -236,7 +236,7 @@ def quizProdHandle(request, quiz_id, product_id):
         for k,v in request.POST.iteritems():
             if k == 'price':
                 v = float(v)
-            elif k == 'images':
+            elif k == 'images' or k == 'categories':
                 v = [v]
             setattr(product, k, v)
 
