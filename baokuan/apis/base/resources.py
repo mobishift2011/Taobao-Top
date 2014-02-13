@@ -695,10 +695,10 @@ class FavoriteCategoryResource(BaseResource):
         user = request.user
         content_type = request.META.get('CONTENT_TYPE', 'application/json')
         data = self.deserialize(request, request.body, format=content_type)
-        categories = data.get('categories',)
+        categories = data.get('categories', None)
         success = False
 
-        if categories:
+        if categories or categories == []:
             FavoriteCategory.objects(user=user).update_one(set__categories=categories, upsert=True)
             success = True
 
