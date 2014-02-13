@@ -544,7 +544,7 @@ class MarkResource(BaseResource):
         rank = bundle.obj.rank
         bundle.data['paper'] = paper_id
         bundle.data['deadline'] = deadline
-        bundle.data['total_marks'] = Mark.objects(paper=paper, rank=rank).count()
+        bundle.data['total_marks'] = Mark.objects(paper=paper).count()
         return bundle
 
     def apply(self, request, **kwargs):
@@ -648,7 +648,7 @@ class MarkResource(BaseResource):
             res['bonus'] = mark.bonus
             res['period'] = mark.period
             res['is_get_bonus'] = mark.is_get_bonus
-            res['total_marks'] = Mark.objects(period=mark.period, rank=mark.rank).count()
+            res['total_marks'] = Mark.objects(period=mark.period).count()
 
         return self.create_response(request, res)
 
