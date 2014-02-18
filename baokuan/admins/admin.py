@@ -284,7 +284,7 @@ def baokuan_by_category(request, cat_id):
     page = int(request.GET.get('page', 1))
     limit = int(request.GET.get('limit', 30))
 
-    url = u'{}/api/v1/cate/hotproducts_list/?cid={}&format=json&page={}&limit={}'.format( \
+    url = u'{}/api/v1/cate/hotproducts_list/?cid={}&order=-deals&format=json&page={}&limit={}'.format( \
         settings.BAOKUAN_HOST, cat_id, page, limit)
     res = requests.get(url, auth=('favbuy', 'tempfavbuy'))
     json_data = res.json()
