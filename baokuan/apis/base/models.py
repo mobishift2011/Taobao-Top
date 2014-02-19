@@ -116,6 +116,7 @@ class Lottery(Document):
     paper = ReferenceField(Paper, required=True, unique=True)
     period = DateTimeField(required=True)
     is_online = BooleanField(default=False)
+    avg_bonus = FloatField(default=0)
 
     meta = {
         'indexes': ['period', 'is_online']
