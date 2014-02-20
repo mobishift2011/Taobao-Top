@@ -138,7 +138,7 @@ def lottery(paper):
     if total_awards:
         bonus = 1.0 * paper.bonus / total_awards
         bonus -= (bonus % 10)
-        lottery.bonus = bonus
+        lottery.avg_bonus = bonus
         lottery.save()
 
     print u'Lottery list for paper {} - {}'.format(paper.period, paper.id)
