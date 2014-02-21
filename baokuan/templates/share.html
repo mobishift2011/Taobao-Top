@@ -68,7 +68,7 @@
   </section>
   <section class="product-detail-ctnr">
     <h1 class="product-name">{{ product.title }}</h1>
-    <p class="product-price"><span class="rmb">￥</span> {{ product.price }}</p>
+    <p class="product-price"><span class="rmb">￥</span> {{ product.price|floatformat:2 }}</p>
     <p class="btn-ctnr">
       <a class="buy-btn" href="{{ product.url }}">
         <img src="{{ STATIC_URL }}/img/mobile/buy-icon.png" alt="" style="height: 1em;">
