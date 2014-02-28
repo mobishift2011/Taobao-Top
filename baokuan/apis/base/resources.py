@@ -449,8 +449,7 @@ class PaperResource(BaseResource):
         today = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
         param_dict = request.GET.dict()
         params = dict(param_dict.items() + {'period__lt': today}.items()) \
-            if 'period__lt' not in param_dict else param_dict
-        params = param_dict
+            if 'period__lt' not in param_dict or datetime.strptime(param_dict['period__lt'], '%Y-%m-%d %H:%M:%S') > today else param_dict
         papers_url = u'http://{}/api/v1/paper/?{}'.format(request.META['HTTP_HOST'], urlencode(params))
         earliest_paper = Paper.objects().order_by('period').first()
         earliest = earliest_paper.period if earliest_paper else None
