@@ -56,7 +56,7 @@ class Product(Document):
     title = StringField()
     description = StringField()
     origin_url = URLField()
-    url = URLField(verify_exists=True)
+    url = URLField()
     images = ListField()
     price = FloatField()
     categories = ListField()
