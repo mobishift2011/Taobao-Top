@@ -77,7 +77,7 @@ def usersHandle(request):
 
 @http_basic_auth
 def papersHandle(request):
-    papers = Paper.objects().order_by('-period')[0:50]
+    papers = Paper.objects().order_by('-period')[0:15]
     return render(request, 'papers.html', {'papers': papers})
 
 
